@@ -11,8 +11,18 @@ const Visualization = ({ data }) => {
   const layout = useMemo(() => ({
     autosize: true,
     margin: { l: 50, r: 50, t: 50, b: 50 },
-    showlegend: true
-  }), []);
+    showlegend: true,
+    title: {
+      text: currentColumn ? `${currentColumn} 的分布` : '',
+      font: { size: 16 }
+    },
+    xaxis: {
+      title: currentColumn
+    },
+    yaxis: {
+      title: '频次'
+    }
+  }), [currentColumn]);
 
   const config = useMemo(() => ({
     displayModeBar: true,
@@ -57,14 +67,17 @@ const Visualization = ({ data }) => {
             type: 'bar',
             x: Object.keys(counts),
             y: Object.values(counts),
-            name: currentColumn
+            name: currentColumn,
+            text: Object.values(counts),
+            textposition: 'auto',
           }];
           break;
         case 'box':
           newPlotData = [{
             type: 'box',
             y: values,
-            name: currentColumn
+            name: currentColumn,
+            boxpoints: 'outliers'
           }];
           break;
         case 'violin':
@@ -73,7 +86,8 @@ const Visualization = ({ data }) => {
             y: values,
             name: currentColumn,
             box: { visible: true },
-            meanline: { visible: true }
+            meanline: { visible: true },
+            points: 'outliers'
           }];
           break;
         case 'pie':
@@ -85,7 +99,9 @@ const Visualization = ({ data }) => {
             type: 'pie',
             labels: Object.keys(pieData),
             values: Object.values(pieData),
-            name: currentColumn
+            name: currentColumn,
+            textinfo: 'label+percent',
+            hoverinfo: 'label+value+percent'
           }];
           break;
         default:
@@ -100,34 +116,10 @@ const Visualization = ({ data }) => {
       setLoading(false);
     }
   }, [currentColumn, chartType, data]);
+  useEffect(() => {
+    console.log('数据表头:', data[0]);
+  }, [data]);
 
-  const getChartOptions = (columnType) => {
-    if (columnType === 'numeric') {
-      return (
-        <Radio.Group 
-          value={chartType} 
-          onChange={(e) => setChartType(e.target.value)}
-          optionType="button"
-          buttonStyle="solid"
-        >
-          <Radio.Button value="histogram">直方图</Radio.Button>
-          <Radio.Button value="box">箱线图</Radio.Button>
-          <Radio.Button value="violin">小提琴图</Radio.Button>
-        </Radio.Group>
-      );
-    }
-    return (
-      <Radio.Group 
-        value={chartType} 
-        onChange={(e) => setChartType(e.target.value)}
-        optionType="button"
-        buttonStyle="solid"
-      >
-        <Radio.Button value="bar">柱状图</Radio.Button>
-        <Radio.Button value="pie">饼图</Radio.Button>
-      </Radio.Group>
-    );
-  };
 
   return (
     <div>
@@ -138,36 +130,28 @@ const Visualization = ({ data }) => {
             placeholder="选择要可视化的列"
             value={currentColumn}
             onChange={setCurrentColumn}
-            options={[
-              {
-                label: '数值型特征',
-                options: Object.keys(data[0] || {})
-                  .filter(key => typeof data[0][key] === 'number')
-                  .map(col => ({
-                    label: col,
-                    value: col,
-                    key: `numeric-${col}`
-                  }))
-              },
-              {
-                label: '类别型特征',
-                options: Object.keys(data[0] || {})
-                  .filter(key => typeof data[0][key] !== 'number')
-                  .map(col => ({
-                    label: col,
-                    value: col,
-                    key: `categorical-${col}`
-                  }))
-              }
-            ]}
+            options={Object.values(data[0] || {}).map(col => ({
+              label: col,
+              value: col,
+              key: col
+            }))}
           />
           
           {currentColumn && (
             <div>
               <span style={{ marginRight: '8px' }}>图表类型：</span>
-              {getChartOptions(
-                typeof data[0][currentColumn] === 'number' ? 'numeric' : 'categorical'
-              )}
+              <Radio.Group 
+                value={chartType} 
+                onChange={(e) => setChartType(e.target.value)}
+                optionType="button"
+                buttonStyle="solid"
+              >
+                <Radio.Button value="histogram">直方图</Radio.Button>
+                <Radio.Button value="bar">柱状图</Radio.Button>
+                <Radio.Button value="box">箱线图</Radio.Button>
+                <Radio.Button value="violin">小提琴图</Radio.Button>
+                <Radio.Button value="pie">饼图</Radio.Button>
+              </Radio.Group>
             </div>
           )}
         </Space>
