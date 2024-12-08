@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Space, Select, Radio, Spin, message } from 'antd';
+import { Card, Space, Radio, Spin, message } from 'antd';
 import Plot from 'react-plotly.js';
+import './Visualization.css';
 
 const Visualization = ({ data, numeric_columns, categorical_columns }) => {
   const [chartType, setChartType] = useState('');
@@ -18,25 +19,47 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
     });
   }, [data, numeric_columns, categorical_columns]);
 
+  // 自定义布局配置
   const layout = useMemo(() => ({
     autosize: true,
     margin: { l: 50, r: 50, t: 50, b: 50 },
     showlegend: true,
     title: {
-      text: currentColumn ? `${currentColumn} 的分布` : '',
+      text: currentColumn ? `${currentColumn}` : '',
       font: { size: 16 }
     },
+    paper_bgcolor: 'white',
+    plot_bgcolor: '#fafafa',
     xaxis: {
-      title: currentColumn
+      title: currentColumn,
+      gridcolor: '#eee',
+      zeroline: false
     },
     yaxis: {
-      title: '频次'
-    }
-  }), [currentColumn]);
+      title: '频次',
+      gridcolor: '#eee',
+      zeroline: false
+    },
+    font: {
+      family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+      size: 12
+    },
+    // 饼图特殊配置
+    ...(chartType === 'pie' ? {
+      height: 500,
+      piecolorway: [
+        '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+        '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
+      ]
+    } : {})
+  }), [currentColumn, chartType]);
 
+  // Plotly 配置选项
   const config = useMemo(() => ({
     displayModeBar: true,
-    responsive: true
+    responsive: true,
+    displaylogo: false,
+    modeBarButtonsToRemove: ['lasso2d', 'select2d']
   }), []);
 
   // 添加数据转换和列名获取的逻辑
@@ -99,7 +122,6 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
       
       let newPlotData;
       if (chartType === 'pie' && categorical_columns.includes(currentColumn)) {
-        // 对类别数据进行统计
         const valueCount = rawValues.reduce((acc, val) => {
           acc[val] = (acc[val] || 0) + 1;
           return acc;
@@ -111,10 +133,16 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
           values: Object.values(valueCount),
           name: currentColumn,
           textinfo: "label+percent",
-          hoverinfo: "label+value+percent"
+          hoverinfo: "label+value+percent",
+          hole: 0.4,  // 设置成环形图
+          marker: {
+            colors: [
+              '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+              '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
+            ]
+          }
         }];
       } else {
-        // 数值型数据的处理
         const values = transformData(rawValues, transformation);
         
         switch (chartType) {
@@ -123,7 +151,15 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
               type: 'histogram',
               x: values,
               nbinsx: 30,
-              name: `${transformation}(${currentColumn})`
+              name: `${transformation}(${currentColumn})`,
+              opacity: 0.7,
+              marker: {
+                color: '#1f77b4',
+                line: {
+                  color: 'white',
+                  width: 1
+                }
+              }
             }];
             break;
           case 'box':
@@ -131,7 +167,15 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
               type: 'box',
               y: values,
               name: currentColumn,
-              boxpoints: 'outliers'
+              boxpoints: 'outliers',
+              marker: {
+                color: '#1f77b4',
+                outliercolor: '#e74c3c',
+                size: 4
+              },
+              line: {
+                width: 1
+              }
             }];
             break;
           case 'violin':
@@ -141,11 +185,16 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
               name: currentColumn,
               box: { visible: true },
               meanline: { visible: true },
-              points: 'outliers'
+              points: 'outliers',
+              line: {
+                color: '#1f77b4',
+                width: 2
+              },
+              fillcolor: '#1f77b4',
+              opacity: 0.6
             }];
             break;
           case 'density':
-            // 使用KDE（核密度估计）
             newPlotData = [{
               type: 'violin',
               y: values,
@@ -154,21 +203,27 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
               meanline: { visible: false },
               points: false,
               side: 'positive',
-              width: 3
+              width: 3,
+              line: {
+                color: '#1f77b4',
+                width: 2
+              },
+              fillcolor: '#1f77b4',
+              opacity: 0.6
             }];
             break;
           case 'scatter':
-            // 散点图，使用索引作为x轴
             newPlotData = [{
               type: 'scatter',
               y: values,
               mode: 'markers',
               name: currentColumn,
-              marker: { size: 6 }
+              marker: {
+                size: 6
+              }
             }];
             break;
           case 'line':
-            // 折线图，使用索引作为x轴
             newPlotData = [{
               type: 'scatter',
               y: values,
@@ -201,30 +256,56 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
       <Card style={{ marginBottom: 16 }}>
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
           <div>
-            <div style={{ marginBottom: '16px' }}>
-              <span style={{ marginRight: '8px' }}>数值特征：</span>
+            <div className="feature-section">
+              <span className="label">数值特征：</span>
               <Radio.Group 
                 value={currentColumn}
                 onChange={(e) => setCurrentColumn(e.target.value)}
                 optionType="button"
                 buttonStyle="solid"
+                className="radio-group"
               >
                 {numeric_columns.map(col => (
-                  <Radio.Button key={col} value={col}>{col}</Radio.Button>
+                  <Radio.Button 
+                    key={col} 
+                    value={col}
+                    className="radio-button"
+                  >
+                    {col}
+                    <div 
+                      className="radio-button-indicator"
+                      style={{
+                        transform: currentColumn === col ? 'scaleX(1)' : 'scaleX(0)'
+                      }}
+                    />
+                  </Radio.Button>
                 ))}
               </Radio.Group>
             </div>
             
             <div>
-              <span style={{ marginRight: '8px' }}>类别特征：</span>
+              <span className="label">类别特征：</span>
               <Radio.Group 
                 value={currentColumn}
                 onChange={(e) => setCurrentColumn(e.target.value)}
                 optionType="button"
                 buttonStyle="solid"
+                className="radio-group"
               >
                 {categorical_columns.map(col => (
-                  <Radio.Button key={col} value={col}>{col}</Radio.Button>
+                  <Radio.Button 
+                    key={col} 
+                    value={col}
+                    className="radio-button"
+                  >
+                    {col}
+                    <div 
+                      className="radio-button-indicator"
+                      style={{
+                        transform: currentColumn === col ? 'scaleX(1)' : 'scaleX(0)'
+                      }}
+                    />
+                  </Radio.Button>
                 ))}
               </Radio.Group>
             </div>
@@ -234,44 +315,77 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
             <>
               {!categorical_columns.includes(currentColumn) && (
                 <div>
-                  <span style={{ marginRight: '8px' }}>数据转换：</span>
+                  <span className="label">数据转换：</span>
                   <Radio.Group 
                     value={transformation}
                     onChange={(e) => setTransformation(e.target.value)}
                     optionType="button"
                     buttonStyle="solid"
+                    className="radio-group"
                   >
-                    <Radio.Button value="x">x</Radio.Button>
-                    <Radio.Button value="x^2">x²</Radio.Button>
-                    <Radio.Button value="log10(x)">log₁₀(x)</Radio.Button>
-                    <Radio.Button value="log10(x+1)">log₁₀(x+1)</Radio.Button>
-                    <Radio.Button value="ln(x)">ln(x)</Radio.Button>
-                    <Radio.Button value="ln(x+1)">ln(x+1)</Radio.Button>
+                    {['x', 'x^2', 'log10(x)', 'log10(x+1)', 'ln(x)', 'ln(x+1)'].map(trans => (
+                      <Radio.Button 
+                        key={trans} 
+                        value={trans}
+                        className="radio-button"
+                      >
+                        {trans === 'x^2' ? 'x²' : 
+                         trans === 'log10(x)' ? 'log₁₀(x)' :
+                         trans === 'log10(x+1)' ? 'log₁₀(x+1)' : trans}
+                        <div 
+                          className="radio-button-indicator"
+                          style={{
+                            transform: transformation === trans ? 'scaleX(1)' : 'scaleX(0)'
+                          }}
+                        />
+                      </Radio.Button>
+                    ))}
                   </Radio.Group>
                 </div>
               )}
 
               <div>
-                <span style={{ marginRight: '8px' }}>图表类型：</span>
+                <span className="label">图表类型：</span>
                 <Radio.Group 
                   value={chartType} 
                   onChange={(e) => setChartType(e.target.value)}
                   optionType="button"
                   buttonStyle="solid"
+                  className="radio-group"
                 >
                   {categorical_columns.includes(currentColumn) ? (
-                    // 类别特征的图表选项
-                    <Radio.Button value="pie">饼图</Radio.Button>
+                    <Radio.Button 
+                      value="pie"
+                      className="radio-button"
+                    >
+                      饼图
+                      <div 
+                        className="radio-button-indicator"
+                        style={{
+                          transform: chartType === 'pie' ? 'scaleX(1)' : 'scaleX(0)'
+                        }}
+                      />
+                    </Radio.Button>
                   ) : (
-                    // 数值特征的图表选项
-                    <>
-                      <Radio.Button value="histogram">直方图</Radio.Button>
-                      <Radio.Button value="box">箱线图</Radio.Button>
-                      <Radio.Button value="violin">小提琴图</Radio.Button>
-                      <Radio.Button value="density">密度图</Radio.Button>
-                      <Radio.Button value="scatter">散点图</Radio.Button>
-                      <Radio.Button value="line">折线图</Radio.Button>
-                    </>
+                    ['histogram', 'box', 'violin', 'density', 'scatter', 'line'].map(type => (
+                      <Radio.Button 
+                        key={type} 
+                        value={type}
+                        className="radio-button"
+                      >
+                        {type === 'histogram' ? '直方图' :
+                         type === 'box' ? '箱线图' :
+                         type === 'violin' ? '小提琴图' :
+                         type === 'density' ? '密度图' :
+                         type === 'scatter' ? '散点图' : '折线图'}
+                        <div 
+                          className="radio-button-indicator"
+                          style={{
+                            transform: chartType === type ? 'scaleX(1)' : 'scaleX(0)'
+                          }}
+                        />
+                      </Radio.Button>
+                    ))
                   )}
                 </Radio.Group>
               </div>
@@ -280,13 +394,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
         </Space>
       </Card>
       
-      <div style={{ 
-        minHeight: 500,
-        border: '1px solid #f0f0f0',
-        borderRadius: '2px',
-        padding: '8px',
-        position: 'relative'
-      }}>
+      <div className="visualization-container">
         <Spin spinning={loading}>
           {currentColumn && plotData ? (
             <Plot
@@ -297,12 +405,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
               onError={() => message.error('图表绘制时出错')}
             />
           ) : (
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center', 
-              height: '100%' 
-            }}>
+            <div className="empty-state">
               <p>请选择要可视化的列</p>
             </div>
           )}
