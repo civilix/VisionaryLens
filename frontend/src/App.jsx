@@ -11,16 +11,26 @@ const { Content } = Layout;
 
 const App = () => {
   const [data, setData] = useState(null);
+  const [numericColumns, setNumericColumns] = useState([]);
+  const [categoricalColumns, setCategoricalColumns] = useState([]);
 
-  const handleDataLoaded = (newData) => {
+  const handleDataLoaded = (newData, metadata) => {
     setData(newData);
+    setNumericColumns(metadata.numeric_columns || []);
+    setCategoricalColumns(metadata.categorical_columns || []);
   };
 
   const items = useMemo(() => [
     {
       key: '1',
       label: '可视化',
-      children: data && <Visualization data={data} />
+      children: data && (
+        <Visualization 
+          data={data} 
+          numeric_columns={numericColumns}
+          categorical_columns={categoricalColumns}
+        />
+      )
     },
     {
       key: '2',
@@ -32,7 +42,7 @@ const App = () => {
       label: '分类分析',
       children: data && <ClassificationAnalysis data={data} />
     }
-  ], [data]);
+  ], [data, numericColumns, categoricalColumns]);
 
   return (
     <Layout>

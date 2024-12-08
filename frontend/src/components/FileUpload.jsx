@@ -80,13 +80,16 @@ const FileUpload = ({ onDataLoaded }) => {
         throw new Error(jsonData.error);
       }
       
-      const { headers, data } = jsonData;
+      const { headers, data, numeric_columns, categorical_columns } = jsonData;
       
       // 组合表头和数据
       const processedData = [headers, ...data];
       
       if (processedData.length > 1) {
-        onDataLoaded(processedData);
+        onDataLoaded(processedData, {
+          numeric_columns,
+          categorical_columns
+        });
         setFileUploaded(true);
         setFileName(`示例文件: ${fileName}`);
         message.success('示例文件加载成功');
