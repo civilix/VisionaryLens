@@ -250,6 +250,89 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
   //   console.log(data);
   // }, [data]);
 
+  // 添加相关系数计算函数
+  const calculateCorrelations = useMemo(() => {
+    if (!processedData.length || !numeric_columns.length) return null;
+
+    // 创建数值列的数据矩阵
+    const numericData = numeric_columns.map(col => {
+      const colIndex = columnNames.indexOf(col);
+      return processedData.map(row => Number(row[colIndex]));
+    });
+
+    // 计算相关系数矩阵
+    const correlations = numeric_columns.map((_, i) => {
+      return numeric_columns.map((_, j) => {
+        if (i === j) return 1;
+        const x = numericData[i].filter((val, idx) => 
+          !isNaN(val) && !isNaN(numericData[j][idx]));
+        const y = numericData[j].filter((val, idx) => 
+          !isNaN(val) && !isNaN(numericData[i][idx]));
+        
+        if (x.length === 0) return 0;
+
+        const xMean = x.reduce((a, b) => a + b) / x.length;
+        const yMean = y.reduce((a, b) => a + b) / y.length;
+        
+        const numerator = x.reduce((sum, xi, idx) => 
+          sum + (xi - xMean) * (y[idx] - yMean), 0);
+        const denominator = Math.sqrt(
+          x.reduce((sum, xi) => sum + Math.pow(xi - xMean, 2), 0) *
+          y.reduce((sum, yi) => sum + Math.pow(yi - yMean, 2), 0)
+        );
+
+        return denominator === 0 ? 0 : numerator / denominator;
+      });
+    });
+
+    return correlations;
+  }, [processedData, numeric_columns, columnNames]);
+
+  // 热力图数据
+  const heatmapData = useMemo(() => {
+    if (!calculateCorrelations) return null;
+
+    return [{
+      type: 'heatmap',
+      z: calculateCorrelations,
+      x: numeric_columns,
+      y: numeric_columns,
+      colorscale: 'RdBu',
+      zmin: -1,
+      zmax: 1,
+      hoverongaps: false,
+      hovertemplate: 
+        '特征1: %{y}<br>特征2: %{x}<br>相关系数: %{z:.3f}<extra></extra>',
+    }];
+  }, [calculateCorrelations, numeric_columns]);
+
+  // 热力图布局
+  const heatmapLayout = useMemo(() => ({
+    title: '特征相关性热力图',
+    autosize: true,
+    height: 500,
+    margin: { l: 100, r: 50, t: 50, b: 100 },
+    xaxis: {
+      tickangle: 45,
+      side: 'bottom'
+    },
+    yaxis: {
+      autorange: 'reversed'
+    },
+    annotations: calculateCorrelations?.map((row, i) =>
+      row.map((val, j) => ({
+        text: val.toFixed(2),
+        x: numeric_columns[j],
+        y: numeric_columns[i],
+        xref: 'x',
+        yref: 'y',
+        showarrow: false,
+        font: {
+          color: Math.abs(val) > 0.5 ? 'white' : 'black'
+        }
+      }))
+    ).flat() || []
+  }), [calculateCorrelations, numeric_columns]);
 
   return (
     <div>
@@ -411,6 +494,23 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
           )}
         </Spin>
       </div>
+      
+      {/* 在现有的可视化容器下方添加热力图 */}
+      {numeric_columns.length > 1 && (
+        <Card style={{ marginTop: 16 }}>
+          <div className="visualization-container">
+            <Spin spinning={loading}>
+              <Plot
+                data={heatmapData}
+                layout={heatmapLayout}
+                config={config}
+                style={{ width: '100%', height: '100%' }}
+                onError={() => message.error('热力图绘制时出错')}
+              />
+            </Spin>
+          </div>
+        </Card>
+      )}
     </div>
   );
 };
