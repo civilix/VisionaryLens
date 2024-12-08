@@ -290,7 +290,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
     return correlations;
   }, [processedData, numeric_columns, columnNames]);
 
-  // 热力图数据
+  // 修改热力图数据配置
   const heatmapData = useMemo(() => {
     if (!calculateCorrelations) return null;
 
@@ -305,28 +305,73 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
       z: filteredZ,
       x: numeric_columns,
       y: numeric_columns,
-      colorscale: 'RdBu',
+      colorscale: [
+        [0, '#2166ac'],      // 深蓝色（强负相关）
+        [0.25, '#92c5de'],   // 浅蓝色（弱负相关）
+        [0.5, '#f7f7f7'],    // 白色（无相关）
+        [0.75, '#fdb863'],   // 橙色（弱正相关）
+        [1, '#b2182b']       // 红色（强正相关）
+      ],
       zmin: -1,
       zmax: 1,
       hoverongaps: false,
+      showscale: true,
+      colorbar: {
+        title: '相关系数',
+        titleside: 'right',
+        thickness: 15,
+        len: 0.5,
+        y: 0.5,
+        tickformat: '.2f',
+        tickmode: 'array',
+        tickvals: [-1, -0.5, 0, 0.5, 1],
+        ticktext: ['-1.00', '-0.50', '0.00', '0.50', '1.00']
+      },
       hovertemplate: 
-        '特征1: %{y}<br>特征2: %{x}<br>相关系数: %{z:.3f}<extra></extra>',
+        '<b>%{y}</b> 与 <b>%{x}</b><br>' +
+        '相关系数: %{z:.3f}<br>' +
+        '<extra></extra>'
     }];
   }, [calculateCorrelations, numeric_columns, showThreshold, correlationThreshold]);
 
-  // 热力图布局
+  // 修改热力图布局配置
   const heatmapLayout = useMemo(() => ({
-    title: '特征相关性热力图',
+    title: {
+      text: '特征相关性热力图',
+      font: {
+        size: 20,
+        family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial'
+      },
+      y: 0.95
+    },
     autosize: true,
-    height: 500,
-    margin: { l: 100, r: 50, t: 50, b: 100 },
+    height: 600,
+    margin: { l: 120, r: 80, t: 80, b: 120 },
     xaxis: {
       tickangle: 45,
-      side: 'bottom'
+      side: 'bottom',
+      tickfont: { size: 11 },
+      gridcolor: '#f0f0f0',
+      linecolor: '#e0e0e0',
+      title: {
+        text: '特征',
+        font: { size: 14 },
+        standoff: 30
+      }
     },
     yaxis: {
-      autorange: 'reversed'
+      autorange: 'reversed',
+      tickfont: { size: 11 },
+      gridcolor: '#f0f0f0',
+      linecolor: '#e0e0e0',
+      title: {
+        text: '特征',
+        font: { size: 14 },
+        standoff: 30
+      }
     },
+    paper_bgcolor: 'white',
+    plot_bgcolor: 'white',
     annotations: calculateCorrelations?.map((row, i) =>
       row.map((val, j) => ({
         text: (!showThreshold || Math.abs(val) >= correlationThreshold) 
@@ -338,7 +383,10 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
         yref: 'y',
         showarrow: false,
         font: {
-          color: Math.abs(val) > 0.5 ? 'white' : 'black'
+          family: 'Arial',
+          size: 10,
+          color: Math.abs(val) > 0.5 ? 'white' : 'black',
+          weight: Math.abs(val) > 0.7 ? 'bold' : 'normal'
         }
       }))
     ).flat() || []
@@ -507,27 +555,47 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
       
       {/* 在现有的可视化容器下方添加热力图 */}
       {numeric_columns.length > 1 && (
-        <Card style={{ marginTop: 16 }}>
-          <Row align="middle" style={{ marginBottom: 16 }}>
+        <Card 
+          style={{ 
+            marginTop: 16,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)'
+          }}
+        >
+          <Row 
+            align="middle" 
+            style={{ 
+              marginBottom: 16,
+              padding: '8px 16px',
+              backgroundColor: '#f9f9f9',
+              borderRadius: '4px'
+            }}
+          >
             <Col span={12}>
-              <Space>
-                <span>过滤低相关性：</span>
-                <Switch 
-                  checked={showThreshold}
-                  onChange={setShowThreshold}
-                />
+              <Space size="large">
+                <Space>
+                  <span style={{ fontWeight: 500 }}>过滤低相关性：</span>
+                  <Switch 
+                    checked={showThreshold}
+                    onChange={setShowThreshold}
+                    style={{ backgroundColor: showThreshold ? '#1890ff' : undefined }}
+                  />
+                </Space>
                 {showThreshold && (
-                  <>
-                    <span>阈值：</span>
+                  <Space>
+                    <span style={{ fontWeight: 500 }}>阈值：</span>
                     <InputNumber
                       value={correlationThreshold}
                       onChange={setCorrelationThreshold}
                       min={0}
                       max={1}
                       step={0.1}
-                      style={{ width: 80 }}
+                      style={{ 
+                        width: 80,
+                        borderColor: '#1890ff'
+                      }}
+                      controls={true}
                     />
-                  </>
+                  </Space>
                 )}
               </Space>
             </Col>
@@ -537,8 +605,21 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
               <Plot
                 data={heatmapData}
                 layout={heatmapLayout}
-                config={config}
-                style={{ width: '100%', height: '100%' }}
+                config={{
+                  ...config,
+                  toImageButtonOptions: {
+                    format: 'png',
+                    filename: '相关性热力图',
+                    height: 1000,
+                    width: 1000,
+                    scale: 2
+                  }
+                }}
+                style={{ 
+                  width: '100%', 
+                  height: '100%',
+                  minHeight: '600px'
+                }}
                 onError={() => message.error('热力图绘制时出错')}
               />
             </Spin>
