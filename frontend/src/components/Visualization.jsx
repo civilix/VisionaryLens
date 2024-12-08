@@ -5,7 +5,7 @@ import './Visualization.css';
 
 const Visualization = ({ data, numeric_columns, categorical_columns }) => {
   const [chartType, setChartType] = useState('');
-  const [currentColumn, setCurrentColumn] = useState('');
+  const [currentColumn, setCurrentColumn] = useState(numeric_columns[0] || '');
   const [transformation, setTransformation] = useState('x');
   const [loading, setLoading] = useState(false);
   const [plotData, setPlotData] = useState(null);
@@ -20,6 +20,13 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
       categorical_columns: categorical_columns
     });
   }, [data, numeric_columns, categorical_columns]);
+
+  // 添加一个 useEffect 来处理数值列变化时的默认选择
+  useEffect(() => {
+    if (!currentColumn && numeric_columns.length > 0) {
+      setCurrentColumn(numeric_columns[0]);
+    }
+  }, [numeric_columns, currentColumn]);
 
   // 自定义布局配置
   const layout = useMemo(() => ({
