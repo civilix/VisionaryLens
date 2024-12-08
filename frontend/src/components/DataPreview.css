@@ -1,0 +1,25 @@
+.data-preview {
+  margin: 20px;
+  overflow-x: auto;
+}
+
+.preview-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 600px;
+}
+
+.preview-table th,
+.preview-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.preview-table th {
+  background-color: #f4f4f4;
+}
+
+.preview-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+} 
