@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Upload, message, Button, Space, Row, Col } from 'antd';
 import { InboxOutlined, ReloadOutlined, FileExcelOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
+import { useTranslation } from 'react-i18next';
 
 const { Dragger } = Upload;
 
@@ -12,6 +13,7 @@ const sampleFiles = [
 ];
 
 const FileUpload = ({ onDataLoaded }) => {
+  const { t } = useTranslation();
   const [fileUploaded, setFileUploaded] = useState(false);
   const [fileName, setFileName] = useState('');
 
@@ -49,18 +51,18 @@ const FileUpload = ({ onDataLoaded }) => {
           onDataLoaded(processedData);
           setFileUploaded(true);
           setFileName(file.name);
-          message.success('文件上传成功');
+          message.success(t('fileUpload.uploadSuccess'));
         } else {
-          message.error('文件中没有有效数据');
+          message.error(t('fileUpload.noData'));
         }
       } catch (error) {
         console.error('文件解析错误:', error);
-        message.error('文件解析失败');
+        message.error(t('fileUpload.uploadError'));
       }
     };
 
     reader.onerror = () => {
-      message.error('文件读取失败');
+      message.error(t('fileUpload.readError'));
     };
 
     reader.readAsArrayBuffer(file);
@@ -91,15 +93,15 @@ const FileUpload = ({ onDataLoaded }) => {
           categorical_columns
         });
         setFileUploaded(true);
-        setFileName(`示例文件: ${fileName}`);
-        message.success('示例文件加载成功');
+        setFileName(`${t('fileUpload.sampleFilePrefix')}${fileName}`);
+        message.success(t('fileUpload.loadSampleSuccess'));
       } else {
-        message.error('文件中没有有效数据');
+        message.error(t('fileUpload.noData'));
       }
       
     } catch (error) {
       console.error('加载示例文件错误:', error);
-      message.error('加载示例文件失败');
+      message.error(t('fileUpload.loadSampleError'));
     }
   };
 
@@ -126,13 +128,13 @@ const FileUpload = ({ onDataLoaded }) => {
         border: '1px dashed #d9d9d9',
         borderRadius: '2px'
       }}>
-        <p>当前文件：{fileName}</p>
+        <p>{ t('fileUpload.currentFile') }{fileName}</p>
         <Button 
           type="primary" 
           icon={<ReloadOutlined />} 
           onClick={handleReset}
         >
-          重新上传
+          { t('fileUpload.reupload') }
         </Button>
       </div>
     );
@@ -145,14 +147,14 @@ const FileUpload = ({ onDataLoaded }) => {
           <p className="ant-upload-drag-icon">
             <InboxOutlined />
           </p>
-          <p className="ant-upload-text">点击或拖拽文件到此区域</p>
+          <p className="ant-upload-text">{ t('fileUpload.dragText') }</p>
           <p className="ant-upload-hint">
-            支持 Excel 文件 (.xlsx, .xls) 或 CSV 文件上传
+            { t('fileUpload.supportText') }
           </p>
         </Dragger>
         
         <div style={{ marginTop: '16px' }}>
-          <p style={{ marginBottom: '8px', color: '#666' }}>或者载入示例文件：</p>
+          <p style={{ marginBottom: '8px', color: '#666' }}>{ t('fileUpload.sampleFiles') }</p>
           <Row gutter={[8, 8]}>
             {sampleFiles.map((fileName) => (
               <Col key={fileName}>
