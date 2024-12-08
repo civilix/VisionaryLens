@@ -82,12 +82,11 @@ def send_sample_file(filename):
         })
         
         headers = df.columns.tolist()
-        data = df.values.tolist()
-        #打印 numeric_columns
-        print(numeric_columns)
+        data = df.values  # 直接使用 NumPy 数组
+        
         return jsonify({
             'headers': headers,
-            'data': data,
+            'data': data.tolist(),
             'numeric_analysis': numeric_stats,
             'numeric_columns': numeric_columns,
             'categorical_columns': categorical_columns

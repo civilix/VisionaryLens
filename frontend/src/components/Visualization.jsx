@@ -29,6 +29,16 @@ const Visualization = ({ data }) => {
     responsive: true
   }), []);
 
+  // 添加数据转换和列名获取的逻辑
+  const { processedData, columnNames } = useMemo(() => {
+    if (!data || !data.length) return { processedData: [], columnNames: [] };
+    
+    const names = data[0];  // 第一行是列名
+    const processed = data.slice(1);  // 从第二行开始的所有数据
+    
+    return { processedData: processed, columnNames: names };
+  }, [data]);
+  
   // 当选择新的列时，自动设置默认的图表类型
   useEffect(() => {
     if (currentColumn) {
@@ -39,14 +49,19 @@ const Visualization = ({ data }) => {
 
   // 更新图表数据的逻辑
   useEffect(() => {
-    if (!currentColumn || !chartType) {
+    if (!currentColumn || !chartType || !processedData.length) {
       setPlotData(null);
       return;
     }
 
     setLoading(true);
     try {
-      const values = data.map(d => d[currentColumn]);
+      // 获取当前列的索引
+      const columnIndex = columnNames.indexOf(currentColumn);
+      
+      // 直接从processedData中获取对应列的值
+      const values = processedData.map(row => row[columnIndex]);
+      
       let newPlotData;
 
       switch (chartType) {
@@ -65,7 +80,7 @@ const Visualization = ({ data }) => {
           });
           newPlotData = [{
             type: 'bar',
-            x: Object.keys(counts),
+            x: Object.values(counts),
             y: Object.values(counts),
             name: currentColumn,
             text: Object.values(counts),
@@ -97,7 +112,7 @@ const Visualization = ({ data }) => {
           });
           newPlotData = [{
             type: 'pie',
-            labels: Object.keys(pieData),
+            labels: Object.values(pieData),
             values: Object.values(pieData),
             name: currentColumn,
             textinfo: 'label+percent',
@@ -107,6 +122,7 @@ const Visualization = ({ data }) => {
         default:
           newPlotData = null;
       }
+      
       setPlotData(newPlotData);
     } catch (error) {
       console.error('图表生成错误:', error);
@@ -115,10 +131,11 @@ const Visualization = ({ data }) => {
     } finally {
       setLoading(false);
     }
-  }, [currentColumn, chartType, data]);
-  useEffect(() => {
-    console.log('数据表头:', data[0]);
-  }, [data]);
+  }, [currentColumn, chartType, processedData, columnNames]);
+  
+  // useEffect(() => {
+  //   console.log(data);
+  // }, [data]);
 
 
   return (
@@ -130,7 +147,7 @@ const Visualization = ({ data }) => {
             placeholder="选择要可视化的列"
             value={currentColumn}
             onChange={setCurrentColumn}
-            options={Object.values(data[0] || {}).map(col => ({
+            options={columnNames.map(col => ({  // 直接使用 columnNames
               label: col,
               value: col,
               key: col
