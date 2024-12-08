@@ -12,7 +12,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
   const [loading, setLoading] = useState(false);
   const [plotData, setPlotData] = useState(null);
   const [showThreshold, setShowThreshold] = useState(true);
-  const [correlationThreshold, setCorrelationThreshold] = useState(0.5);
+  const [correlationThreshold, setCorrelationThreshold] = useState(0);
 
   // Add debug logs
   useEffect(() => {
