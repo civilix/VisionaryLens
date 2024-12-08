@@ -39,7 +39,7 @@ const Header = () => {
       </div>
       
       <a 
-        href="https://github.com/yourusername/yourrepo" 
+        href="https://github.com/civilix/VisionaryLens" 
         target="_blank" 
         rel="noopener noreferrer"
         style={{
