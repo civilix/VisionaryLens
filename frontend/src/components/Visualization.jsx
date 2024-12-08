@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Space, Radio, Spin, message, Switch, InputNumber, Row, Col } from 'antd';
+import { Card, Space, Radio, Spin, message, Switch, InputNumber, Slider, Row, Col } from 'antd';
 import Plot from 'react-plotly.js';
 import './Visualization.css';
 
@@ -565,6 +565,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
         <Card 
           style={{ 
             marginTop: 16,
+            backgroundColor: '#f7f7f7',
             boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)'
           }}
         >
@@ -573,39 +574,44 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
             style={{ 
               marginBottom: 16,
               padding: '8px 16px',
-              backgroundColor: '#f9f9f9',
+              backgroundColor: '#f0f0f0',
               borderRadius: '4px'
             }}
           >
-            <Col span={12}>
-              <Space size="large">
-                <Space>
-                  <span style={{ fontWeight: 500 }}>过滤低相关性：</span>
-                  <Switch 
-                    checked={showThreshold}
-                    onChange={setShowThreshold}
-                    style={{ backgroundColor: showThreshold ? '#1890ff' : undefined }}
-                  />
-                </Space>
-                {showThreshold && (
-                  <Space>
-                    <span style={{ fontWeight: 500 }}>阈值：</span>
-                    <InputNumber
-                      value={correlationThreshold}
-                      onChange={setCorrelationThreshold}
-                      min={0}
-                      max={1}
-                      step={0.1}
-                      style={{ 
-                        width: 80,
-                        borderColor: '#1890ff'
-                      }}
-                      controls={true}
-                    />
-                  </Space>
-                )}
+            <Col span={8}>
+              <Space>
+                <span style={{ fontWeight: 500 }}>过滤低相关性：</span>
+                <Switch 
+                  checked={showThreshold}
+                  onChange={setShowThreshold}
+                  style={{ backgroundColor: showThreshold ? '#1890ff' : undefined }}
+                />
               </Space>
             </Col>
+            {showThreshold && (
+              <Col span={16}>
+                <Space align="center" style={{ width: '100%' }}>
+                  <span style={{ fontWeight: 500, minWidth: '60px' }}>阈值：</span>
+                  <Slider
+                    value={correlationThreshold}
+                    onChange={setCorrelationThreshold}
+                    min={0}
+                    max={1}
+                    step={0.05}
+                    style={{ 
+                      width: '200px',
+                      margin: '0 10px'
+                    }}
+                    tooltip={{
+                      formatter: value => `${value.toFixed(2)}`
+                    }}
+                  />
+                  <span style={{ minWidth: '60px' }}>
+                    {correlationThreshold.toFixed(2)}
+                  </span>
+                </Space>
+              </Col>
+            )}
           </Row>
           <div className="visualization-container">
             <Spin spinning={loading}>
