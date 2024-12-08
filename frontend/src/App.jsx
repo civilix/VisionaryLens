@@ -6,10 +6,12 @@ import Visualization from './components/Visualization';
 import RegressionAnalysis from './components/RegressionAnalysis';
 import ClassificationAnalysis from './components/ClassificationAnalysis';
 import Header from './components/Header';
+import { useTranslation } from 'react-i18next';
 
 const { Content } = Layout;
 
 const App = () => {
+  const { t } = useTranslation();
   const [data, setData] = useState(null);
   const [numericColumns, setNumericColumns] = useState([]);
   const [categoricalColumns, setCategoricalColumns] = useState([]);
@@ -23,7 +25,7 @@ const App = () => {
   const items = useMemo(() => [
     {
       key: '1',
-      label: '可视化',
+      label: t('visualization'),
       children: data && (
         <Visualization 
           data={data} 
@@ -34,15 +36,15 @@ const App = () => {
     },
     {
       key: '2',
-      label: '回归分析',
+      label: t('regression'),
       children: data && <RegressionAnalysis data={data} />
     },
     {
       key: '3',
-      label: '分类分析',
+      label: t('classification'),
       children: data && <ClassificationAnalysis data={data} />
     }
-  ], [data, numericColumns, categoricalColumns]);
+  ], [data, numericColumns, categoricalColumns, t]);
 
   return (
     <Layout>
@@ -53,7 +55,7 @@ const App = () => {
         {data && data.length > 0 && (
           <>
             <Card 
-              title="数据预览" 
+              title={t('dataPreview')}
               style={{ 
                 marginTop: '24px',
                 marginBottom: '24px'

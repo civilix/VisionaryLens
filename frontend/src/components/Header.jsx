@@ -1,10 +1,18 @@
 import React from 'react';
-import { Layout } from 'antd';
+import { Layout, Select } from 'antd';
 import { CodeOutlined, GithubOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 const { Header: AntHeader } = Layout;
+const { Option } = Select;
 
 const Header = () => {
+  const { t, i18n } = useTranslation();
+
+  const handleLanguageChange = (value) => {
+    i18n.changeLanguage(value);
+  };
+
   return (
     <AntHeader 
       style={{ 
@@ -34,24 +42,40 @@ const Header = () => {
           fontSize: '20px',
           fontWeight: 600,
         }}>
-          VisionaryLens
+          {t('appName')}
         </h1>
       </div>
       
-      <a 
-        href="https://github.com/civilix/VisionaryLens" 
-        target="_blank" 
-        rel="noopener noreferrer"
-        style={{
-          color: '#1890ff',
-          fontSize: '24px',
-          transition: 'color 0.3s',
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.color = '#40a9ff'}
-        onMouseLeave={(e) => e.currentTarget.style.color = '#1890ff'}
-      >
-        <GithubOutlined />
-      </a>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px'
+      }}>
+        <Select
+          defaultValue={i18n.language}
+          style={{ width: 120 }}
+          onChange={handleLanguageChange}
+        >
+          <Option value="zh">中文</Option>
+          <Option value="ja">日本語</Option>
+          <Option value="en">English</Option>
+        </Select>
+
+        <a 
+          href="https://github.com/civilix/VisionaryLens" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          style={{
+            color: '#1890ff',
+            fontSize: '24px',
+            transition: 'color 0.3s',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = '#40a9ff'}
+          onMouseLeave={(e) => e.currentTarget.style.color = '#1890ff'}
+        >
+          <GithubOutlined />
+        </a>
+      </div>
     </AntHeader>
   );
 };
