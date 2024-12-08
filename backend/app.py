@@ -11,21 +11,21 @@ CORS(app)
 def get_example_data():
     try:
         df = pd.read_excel('example_data/ad-data.xlsx')
-        # 修改数值类型转换逻辑
+        # Modify numeric type conversion logic
         for column in df.columns:
             try:
                 df[column] = pd.to_numeric(df[column])
             except (ValueError, TypeError):
                 continue
         
-        # 数值型特征列表
+        # Numeric feature list
         numeric_columns = df.select_dtypes(include=[np.number]).columns.tolist()
-        # 类别型（非数值型）特征列表
+        # Categorical (non-numeric) feature list
         categorical_columns = df.select_dtypes(exclude=[np.number]).columns.tolist()
         
-        # 添加日志输出来调试
-        print("数值型列:", numeric_columns)
-        print("类别型列:", categorical_columns)
+        # Add debug output
+        print("Numeric columns:", numeric_columns)
+        print("Categorical columns:", categorical_columns)
         
         preview_data = df.head().replace({np.nan: None}).to_dict('records')
         
@@ -52,14 +52,14 @@ def send_sample_file(filename):
         else:  # Excel files
             df = pd.read_excel(file_path)
         
-        # 修改数值类型转换逻辑
+        # Modify numeric type conversion logic
         for column in df.columns:
             try:
                 df[column] = pd.to_numeric(df[column])
             except (ValueError, TypeError):
                 continue
         
-        # 检查数值列的缺失值和异常值
+        # Check missing values and outliers in numeric columns
         numeric_stats = {}
         for column in df.select_dtypes(include=[np.number]).columns:
             stats = {
@@ -70,11 +70,11 @@ def send_sample_file(filename):
             }
             numeric_stats[column] = stats
 
-        # 数据类型分类
+        # Data type classification
         numeric_columns = df.select_dtypes(include=[np.number]).columns.tolist()
         categorical_columns = df.select_dtypes(exclude=[np.number]).columns.tolist()
 
-        # 处理特殊值
+        # Handle special values
         df = df.replace({
             np.nan: None,
             np.inf: None,
@@ -82,7 +82,7 @@ def send_sample_file(filename):
         })
         
         headers = df.columns.tolist()
-        data = df.values  # 直接使用 NumPy 数组
+        data = df.values  # Use NumPy array directly
         
         return jsonify({
             'headers': headers,

@@ -12,23 +12,23 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
   const [showThreshold, setShowThreshold] = useState(false);
   const [correlationThreshold, setCorrelationThreshold] = useState(0.5);
 
-  // 添加调试日志
+  // Add debug logs
   useEffect(() => {
-    console.log('数据检查:', {
+    console.log('Data check:', {
       data: data,
       numeric_columns: numeric_columns,
       categorical_columns: categorical_columns
     });
   }, [data, numeric_columns, categorical_columns]);
 
-  // 添加一个 useEffect 来处理数值列变化时的默认选择
+  // Add useEffect to handle default selection when numeric columns change
   useEffect(() => {
     if (!currentColumn && numeric_columns.length > 0) {
       setCurrentColumn(numeric_columns[0]);
     }
   }, [numeric_columns, currentColumn]);
 
-  // 自定义布局配置
+  // Custom layout configuration
   const layout = useMemo(() => ({
     autosize: true,
     margin: { l: 50, r: 50, t: 50, b: 50 },
@@ -45,7 +45,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
       zeroline: false
     },
     yaxis: {
-      title: '频次',
+      title: 'Frequency',
       gridcolor: '#eee',
       zeroline: false
     },
@@ -53,7 +53,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
       family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial',
       size: 12
     },
-    // 饼图特殊配置
+    // Pie chart special configuration
     ...(chartType === 'pie' ? {
       height: 500,
       piecolorway: [
@@ -63,7 +63,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
     } : {})
   }), [currentColumn, chartType]);
 
-  // Plotly 配置选项
+  // Plotly configuration options
   const config = useMemo(() => ({
     displayModeBar: true,
     responsive: true,
@@ -71,29 +71,29 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
     modeBarButtonsToRemove: ['lasso2d', 'select2d']
   }), []);
 
-  // 添加数据转换和列名获取的逻辑
+  // Add data transformation and column name extraction logic
   const { processedData, columnNames } = useMemo(() => {
     if (!data || !data.length) return { processedData: [], columnNames: [] };
     
-    const names = data[0];  // 第一行是列名
-    const processed = data.slice(1);  // 从第二行开始的所有数据
+    const names = data[0];  // First row contains column names
+    const processed = data.slice(1);  // All data from second row onwards
     
     return { processedData: processed, columnNames: names };
   }, [data]);
   
-  // 当选择新的列时，自动设置默认的图表类型
+  // When selecting a new column, automatically set default chart type
   useEffect(() => {
     if (currentColumn) {
-      // 如果是类别特征，默认使用饼图
+      // For categorical features, default to pie chart
       if (categorical_columns.includes(currentColumn)) {
         setChartType('pie');
       } else {
-        setChartType('histogram');  // 数值特征默认使用直方图
+        setChartType('histogram');  // For numeric features, default to histogram
       }
     }
   }, [currentColumn, categorical_columns]);
 
-  // 定义转换函数
+  // Define transformation functions
   const transformData = (values, type) => {
     return values.map(val => {
       const num = Number(val);
@@ -117,7 +117,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
     }).filter(val => val !== null);
   };
 
-  // 更新图表数据的逻辑
+  // Update chart data logic
   useEffect(() => {
     if (!currentColumn || !chartType || !processedData.length) {
       setPlotData(null);
@@ -143,7 +143,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
           name: currentColumn,
           textinfo: "label+percent",
           hoverinfo: "label+value+percent",
-          hole: 0.4,  // 设置成环形图
+          hole: 0.4,  // Set to pie chart
           marker: {
             colors: [
               '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
@@ -247,8 +247,8 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
       
       setPlotData(newPlotData);
     } catch (error) {
-      console.error('图表生成错误:', error);
-      message.error('生成图表数据时出错');
+      console.error('Chart generation error:', error);
+      message.error('Error generating chart data');
       setPlotData(null);
     } finally {
       setLoading(false);
@@ -259,17 +259,17 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
   //   console.log(data);
   // }, [data]);
 
-  // 添加相关系数计算函数
+  // Add correlation calculation function
   const calculateCorrelations = useMemo(() => {
     if (!processedData.length || !numeric_columns.length) return null;
 
-    // 创建数值列的数据矩阵
+    // Create numeric column data matrix
     const numericData = numeric_columns.map(col => {
       const colIndex = columnNames.indexOf(col);
       return processedData.map(row => Number(row[colIndex]));
     });
 
-    // 计算相关系数矩阵
+    // Calculate correlation matrix
     const correlations = numeric_columns.map((_, i) => {
       return numeric_columns.map((_, j) => {
         if (i === j) return 1;
@@ -297,7 +297,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
     return correlations;
   }, [processedData, numeric_columns, columnNames]);
 
-  // 修改热力图数据配置
+  // Modify heatmap data configuration
   const heatmapData = useMemo(() => {
     if (!calculateCorrelations) return null;
 
@@ -313,18 +313,18 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
       x: numeric_columns,
       y: numeric_columns,
       colorscale: [
-        [0, '#2166ac'],      // 深蓝色（强负相关）
-        [0.25, '#92c5de'],   // 浅蓝色（弱负相关）
-        [0.5, '#f7f7f7'],    // 白色（无相关）
-        [0.75, '#fdb863'],   // 橙色（弱正相关）
-        [1, '#b2182b']       // 红色（强正相关）
+        [0, '#2166ac'],      // Dark blue (strong negative correlation)
+        [0.25, '#92c5de'],   // Light blue (weak negative correlation)
+        [0.5, '#f7f7f7'],    // White (no correlation)
+        [0.75, '#fdb863'],   // Orange (weak positive correlation)
+        [1, '#b2182b']       // Red (strong positive correlation)
       ],
       zmin: -1,
       zmax: 1,
       hoverongaps: false,
       showscale: true,
       colorbar: {
-        title: '相关系数',
+        title: 'Correlation Coefficient',
         titleside: 'right',
         thickness: 15,
         len: 0.5,
@@ -341,10 +341,10 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
     }];
   }, [calculateCorrelations, numeric_columns, showThreshold, correlationThreshold]);
 
-  // 修改热力图布局配置
+  // Modify heatmap layout configuration
   const heatmapLayout = useMemo(() => ({
     title: {
-      text: '特征相关性热力图',
+      text: 'Feature Correlation Heatmap',
       font: {
         size: 20,
         family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial'
@@ -361,7 +361,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
       gridcolor: '#f0f0f0',
       linecolor: '#e0e0e0',
       title: {
-        text: '特征',
+        text: '',
         font: { size: 14 },
         standoff: 30
       }
@@ -372,7 +372,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
       gridcolor: '#f0f0f0',
       linecolor: '#e0e0e0',
       title: {
-        text: '特征',
+        text: '',
         font: { size: 14 },
         standoff: 30
       }
@@ -405,7 +405,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
           <div>
             <div className="feature-section">
-              <span className="label">数值特征：</span>
+              <span className="label">Numeric Features:</span>
               <Radio.Group 
                 value={currentColumn}
                 onChange={(e) => setCurrentColumn(e.target.value)}
@@ -432,7 +432,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
             </div>
             
             <div>
-              <span className="label">类别特征：</span>
+              <span className="label">Categorical Features:</span>
               <Radio.Group 
                 value={currentColumn}
                 onChange={(e) => setCurrentColumn(e.target.value)}
@@ -463,7 +463,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
             <>
               {!categorical_columns.includes(currentColumn) && (
                 <div>
-                  <span className="label">数据转换：</span>
+                  <span className="label">Data Transformation:</span>
                   <Radio.Group 
                     value={transformation}
                     onChange={(e) => setTransformation(e.target.value)}
@@ -493,7 +493,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
               )}
 
               <div>
-                <span className="label">图表类型：</span>
+                <span className="label">Chart Type:</span>
                 <Radio.Group 
                   value={chartType} 
                   onChange={(e) => setChartType(e.target.value)}
@@ -506,7 +506,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
                       value="pie"
                       className="radio-button"
                     >
-                      饼图
+                      Pie Chart
                       <div 
                         className="radio-button-indicator"
                         style={{
@@ -521,11 +521,11 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
                         value={type}
                         className="radio-button"
                       >
-                        {type === 'histogram' ? '直方图' :
-                         type === 'box' ? '箱线图' :
-                         type === 'violin' ? '小提琴图' :
-                         type === 'density' ? '密度图' :
-                         type === 'scatter' ? '散点图' : '折线图'}
+                        {type === 'histogram' ? 'Histogram' :
+                         type === 'box' ? 'Box Plot' :
+                         type === 'violin' ? 'Violin Plot' :
+                         type === 'density' ? 'Density Plot' :
+                         type === 'scatter' ? 'Scatter Plot' : 'Line Plot'}
                         <div 
                           className="radio-button-indicator"
                           style={{
@@ -550,17 +550,17 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
               layout={layout}
               config={config}
               style={{ width: '100%', height: '100%' }}
-              onError={() => message.error('图表绘制时出错')}
+              onError={() => message.error('Error drawing chart')}
             />
           ) : (
             <div className="empty-state">
-              <p>请选择要可视化的列</p>
+              <p>Please select a column to visualize</p>
             </div>
           )}
         </Spin>
       </div>
       
-      {/* 在现有的可视化容器下方添加热力图 */}
+      {/* Add heatmap below existing visualization container */}
       {numeric_columns.length > 1 && (
         <Card 
           style={{ 
@@ -580,7 +580,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
           >
             <Col span={8}>
               <Space>
-                <span style={{ fontWeight: 500 }}>过滤低相关性：</span>
+                <span style={{ fontWeight: 500 }}>Filter Low Correlation:</span>
                 <Switch 
                   checked={showThreshold}
                   onChange={setShowThreshold}
@@ -591,7 +591,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
             {showThreshold && (
               <Col span={16}>
                 <Space align="center" style={{ width: '100%' }}>
-                  <span style={{ fontWeight: 500, minWidth: '60px' }}>阈值：</span>
+                  <span style={{ fontWeight: 500, minWidth: '60px' }}>Threshold:</span>
                   <Slider
                     value={correlationThreshold}
                     onChange={setCorrelationThreshold}
@@ -622,7 +622,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
                   ...config,
                   toImageButtonOptions: {
                     format: 'png',
-                    filename: '相关性热力图',
+                    filename: 'Correlation Heatmap',
                     height: 1000,
                     width: 1000,
                     scale: 2
@@ -633,7 +633,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
                   height: '100%',
                   minHeight: '600px'
                 }}
-                onError={() => message.error('热力图绘制时出错')}
+                onError={() => message.error('Error drawing heatmap')}
               />
             </Spin>
           </div>

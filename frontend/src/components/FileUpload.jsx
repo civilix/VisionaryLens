@@ -25,7 +25,7 @@ const FileUpload = ({ onDataLoaded }) => {
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
 
-        // 强制读取第一行作为表头
+        // Force read first row as headers
         const range = XLSX.utils.decode_range(worksheet['!ref']);
         const headers = [];
         for(let C = range.s.c; C <= range.e.c; ++C) {
@@ -33,13 +33,13 @@ const FileUpload = ({ onDataLoaded }) => {
           headers[C] = cell ? cell.v : '';
         }
 
-        // 读取数据行
+        // Read data rows
         const rows = XLSX.utils.sheet_to_json(worksheet, {
           header: headers,
-          range: 1  // 从第二行开始读取
+          range: 1  // Start reading from second row
         }).map(row => headers.map(header => row[header] || ''));
 
-        // 组合表头和数据
+        // Combine headers and data
         const processedData = [
           headers,
           ...rows
