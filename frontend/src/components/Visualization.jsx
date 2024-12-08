@@ -2,8 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Card, Space, Radio, Spin, message, Switch, InputNumber, Slider, Row, Col } from 'antd';
 import Plot from 'react-plotly.js';
 import './Visualization.css';
+import { useTranslation } from 'react-i18next';
 
 const Visualization = ({ data, numeric_columns, categorical_columns }) => {
+  const { t } = useTranslation();
   const [chartType, setChartType] = useState('');
   const [currentColumn, setCurrentColumn] = useState(numeric_columns[0] || '');
   const [transformation, setTransformation] = useState('x');
@@ -405,7 +407,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
           <div>
             <div className="feature-section">
-              <span className="label">Numeric Features:</span>
+              <span className="label">{t('visualization.numericFeatures')}:</span>
               <Radio.Group 
                 value={currentColumn}
                 onChange={(e) => setCurrentColumn(e.target.value)}
@@ -432,7 +434,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
             </div>
             
             <div>
-              <span className="label">Categorical Features:</span>
+              <span className="label">{t('visualization.categoricalFeatures')}:</span>
               <Radio.Group 
                 value={currentColumn}
                 onChange={(e) => setCurrentColumn(e.target.value)}
@@ -463,7 +465,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
             <>
               {!categorical_columns.includes(currentColumn) && (
                 <div>
-                  <span className="label">Data Transformation:</span>
+                  <span className="label">{t('visualization.dataTransformation')}:</span>
                   <Radio.Group 
                     value={transformation}
                     onChange={(e) => setTransformation(e.target.value)}
@@ -493,7 +495,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
               )}
 
               <div>
-                <span className="label">Chart Type:</span>
+                <span className="label">{t('visualization.chartType')}:</span>
                 <Radio.Group 
                   value={chartType} 
                   onChange={(e) => setChartType(e.target.value)}
@@ -506,7 +508,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
                       value="pie"
                       className="radio-button"
                     >
-                      Pie Chart
+                      {t('visualization.charts.pieChart')}
                       <div 
                         className="radio-button-indicator"
                         style={{
@@ -521,11 +523,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
                         value={type}
                         className="radio-button"
                       >
-                        {type === 'histogram' ? 'Histogram' :
-                         type === 'box' ? 'Box Plot' :
-                         type === 'violin' ? 'Violin Plot' :
-                         type === 'density' ? 'Density Plot' :
-                         type === 'scatter' ? 'Scatter Plot' : 'Line Plot'}
+                        {t(`visualization.charts.${type}Plot`)}
                         <div 
                           className="radio-button-indicator"
                           style={{
@@ -554,7 +552,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
             />
           ) : (
             <div className="empty-state">
-              <p>Please select a column to visualize</p>
+              <p>{t('visualization.selectColumn')}</p>
             </div>
           )}
         </Spin>
@@ -580,7 +578,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
           >
             <Col span={8}>
               <Space>
-                <span style={{ fontWeight: 500 }}>Filter Low Correlation:</span>
+                <span style={{ fontWeight: 500 }}>{t('visualization.correlation.filterLowCorrelation')}:</span>
                 <Switch 
                   checked={showThreshold}
                   onChange={setShowThreshold}
@@ -591,7 +589,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
             {showThreshold && (
               <Col span={16}>
                 <Space align="center" style={{ width: '100%' }}>
-                  <span style={{ fontWeight: 500, minWidth: '60px' }}>Threshold:</span>
+                  <span style={{ fontWeight: 500, minWidth: '60px' }}>{t('visualization.correlation.threshold')}:</span>
                   <Slider
                     value={correlationThreshold}
                     onChange={setCorrelationThreshold}
