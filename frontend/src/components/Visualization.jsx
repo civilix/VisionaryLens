@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Space, Radio, Spin, message } from 'antd';
+import { Card, Space, Radio, Spin, message, Switch, InputNumber, Row, Col } from 'antd';
 import Plot from 'react-plotly.js';
 import './Visualization.css';
 
@@ -9,6 +9,8 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
   const [transformation, setTransformation] = useState('x');
   const [loading, setLoading] = useState(false);
   const [plotData, setPlotData] = useState(null);
+  const [showThreshold, setShowThreshold] = useState(false);
+  const [correlationThreshold, setCorrelationThreshold] = useState(0.5);
 
   // 添加调试日志
   useEffect(() => {
@@ -292,9 +294,15 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
   const heatmapData = useMemo(() => {
     if (!calculateCorrelations) return null;
 
+    const filteredZ = calculateCorrelations.map(row =>
+      row.map(val => 
+        showThreshold && Math.abs(val) < correlationThreshold ? null : val
+      )
+    );
+
     return [{
       type: 'heatmap',
-      z: calculateCorrelations,
+      z: filteredZ,
       x: numeric_columns,
       y: numeric_columns,
       colorscale: 'RdBu',
@@ -304,7 +312,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
       hovertemplate: 
         '特征1: %{y}<br>特征2: %{x}<br>相关系数: %{z:.3f}<extra></extra>',
     }];
-  }, [calculateCorrelations, numeric_columns]);
+  }, [calculateCorrelations, numeric_columns, showThreshold, correlationThreshold]);
 
   // 热力图布局
   const heatmapLayout = useMemo(() => ({
@@ -321,7 +329,9 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
     },
     annotations: calculateCorrelations?.map((row, i) =>
       row.map((val, j) => ({
-        text: val.toFixed(2),
+        text: (!showThreshold || Math.abs(val) >= correlationThreshold) 
+          ? val.toFixed(2) 
+          : '',
         x: numeric_columns[j],
         y: numeric_columns[i],
         xref: 'x',
@@ -332,7 +342,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
         }
       }))
     ).flat() || []
-  }), [calculateCorrelations, numeric_columns]);
+  }), [calculateCorrelations, numeric_columns, showThreshold, correlationThreshold]);
 
   return (
     <div>
@@ -498,6 +508,30 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
       {/* 在现有的可视化容器下方添加热力图 */}
       {numeric_columns.length > 1 && (
         <Card style={{ marginTop: 16 }}>
+          <Row align="middle" style={{ marginBottom: 16 }}>
+            <Col span={12}>
+              <Space>
+                <span>过滤低相关性：</span>
+                <Switch 
+                  checked={showThreshold}
+                  onChange={setShowThreshold}
+                />
+                {showThreshold && (
+                  <>
+                    <span>阈值：</span>
+                    <InputNumber
+                      value={correlationThreshold}
+                      onChange={setCorrelationThreshold}
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      style={{ width: 80 }}
+                    />
+                  </>
+                )}
+              </Space>
+            </Col>
+          </Row>
           <div className="visualization-container">
             <Spin spinning={loading}>
               <Plot
