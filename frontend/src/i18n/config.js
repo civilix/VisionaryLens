@@ -9,7 +9,7 @@ i18n
     resources: {
       zh: {
         translation: {
-          visualization: '可视化',
+          visualizationTab: '可视化',
           regression: '回归分析',
           classification: '分类分析',
           dataPreview: '数据预览',
@@ -35,7 +35,7 @@ i18n
             chartType: '图表类型',
             charts: {
               pieChart: '饼图',
-              histogram: '直方图',
+              histogramPlot: '直方图',
               boxPlot: '箱线图',
               violinPlot: '小提琴图',
               densityPlot: '密度图',
@@ -55,7 +55,7 @@ i18n
       },
       ja: {
         translation: {
-          visualization: '可視化',
+          visualizationTab: '可視化',
           regression: '回帰分析',
           classification: '分類分析',
           dataPreview: 'データプレビュー',
@@ -81,7 +81,7 @@ i18n
             chartType: 'グラフタイプ',
             charts: {
               pieChart: '円グラフ',
-              histogram: 'ヒストグラム',
+              histogramPlot: 'ヒストグラム',
               boxPlot: '箱ひげ図',
               violinPlot: 'バイオリンプロット',
               densityPlot: '密度プロット',
@@ -101,7 +101,7 @@ i18n
       },
       en: {
         translation: {
-          visualization: 'Visualization',
+          visualizationTab: 'Visualization',
           regression: 'Regression Analysis',
           classification: 'Classification Analysis',
           dataPreview: 'Data Preview',
@@ -127,7 +127,7 @@ i18n
             chartType: 'Chart Type',
             charts: {
               pieChart: 'Pie Chart',
-              histogram: 'Histogram',
+              histogramPlot: 'Histogram',
               boxPlot: 'Box Plot',
               violinPlot: 'Violin Plot',
               densityPlot: 'Density Plot',

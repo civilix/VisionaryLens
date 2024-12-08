@@ -25,7 +25,7 @@ const App = () => {
   const items = useMemo(() => [
     {
       key: '1',
-      label: t('visualization'),
+      label: `${t('visualizationTab')}`,
       children: data && (
         <Visualization 
           data={data} 
@@ -36,12 +36,12 @@ const App = () => {
     },
     {
       key: '2',
-      label: t('regression'),
+      label: `${t('regression')}`,
       children: data && <RegressionAnalysis data={data} />
     },
     {
       key: '3',
-      label: t('classification'),
+      label: `${t('classification')}`,
       children: data && <ClassificationAnalysis data={data} />
     }
   ], [data, numericColumns, categoricalColumns, t]);

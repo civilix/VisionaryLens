@@ -11,7 +11,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
   const [transformation, setTransformation] = useState('x');
   const [loading, setLoading] = useState(false);
   const [plotData, setPlotData] = useState(null);
-  const [showThreshold, setShowThreshold] = useState(false);
+  const [showThreshold, setShowThreshold] = useState(true);
   const [correlationThreshold, setCorrelationThreshold] = useState(0.5);
 
   // Add debug logs
