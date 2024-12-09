@@ -1,4 +1,4 @@
-def generate_insights(all_columns, selected_column, column_type, chart_type, transformation, data, language='zh'):
+def generate_insights(all_columns, selected_column, column_type, chart_type, transformation, data, language):
     """
     Basic function to generate data insights
     
@@ -23,6 +23,7 @@ def generate_insights(all_columns, selected_column, column_type, chart_type, tra
 - 数据转换: {transformation}
 - 数据长度: {len(data)}
 - 数据前5个值: {data[:5]}
+- 语言: {language}
 """
 
     insights_en = f"""
@@ -33,6 +34,7 @@ Data Overview:
 - Transformation: {transformation}
 - Data Length: {len(data)}
 - First 5 Values: {data[:5]}
+- Language: {language}
 """
 
     insights_ja = f"""
@@ -43,6 +45,7 @@ Data Overview:
 - 変換方式: {transformation}
 - データ長: {len(data)}
 - 最初の5つの値: {data[:5]}
+- 言語: {language}
 """
     
     # Return insights based on language
