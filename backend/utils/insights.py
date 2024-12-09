@@ -43,7 +43,7 @@ def generate_insights(all_columns, selected_column, column_type, chart_type, tra
                                     ]
                                     )
     #send all information to the model
-    response = chat_session.send_message()
+    response = chat_session.send_message(context_dict)
 
     print(response.text)
     
