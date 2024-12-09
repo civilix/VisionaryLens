@@ -19,6 +19,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
   const [correlationThreshold, setCorrelationThreshold] = useState(0);
   const [insights, setInsights] = useState('');
   const [loadingInsights, setLoadingInsights] = useState(false);
+  const [expandedInsights, setExpandedInsights] = useState(false);
 
   // Add debug logs
   useEffect(() => {
@@ -585,7 +586,10 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
       
       <div className="visualization-container">
         <Row gutter={16}>
-          <Col span={16}>
+          <Col 
+            span={expandedInsights ? 12 : 20} 
+            style={{ transition: 'all 0.3s ease' }}
+          >
             <Spin spinning={loading}>
               {currentColumn && plotData ? (
                 <Plot
@@ -602,13 +606,19 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
               )}
             </Spin>
           </Col>
-          <Col span={8}>
+          <Col 
+            span={expandedInsights ? 12 : 4} 
+            style={{ transition: 'all 0.3s ease' }}
+          >
             <Card style={{ height: '100%' }}>
               <Space direction="vertical" style={{ width: '100%' }}>
                 <div style={{ position: 'relative' }}>
                   <Button 
                     type="primary" 
-                    onClick={fetchInsights}
+                    onClick={() => {
+                      fetchInsights();
+                      setExpandedInsights(true);
+                    }}
                     loading={loadingInsights}
                     disabled={!currentColumn}
                     style={{ width: '100%' }}
