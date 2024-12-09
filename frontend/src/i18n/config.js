@@ -49,7 +49,14 @@ i18n
               coefficient: '相关系数'
             },
             selectColumn: '请选择要可视化的列',
-            errorDrawing: '绘制图表出错'
+            errorDrawing: '绘制图表出错',
+            generateInsights: '生成数据洞察',
+            noInsightsYet: '点击上方按钮生成数据洞察',
+            insights: {
+              error: '获取数据洞察失败',
+              title: '数据洞察',
+              loading: '正在生成数据洞察...'
+            }
           }
         }
       },
@@ -95,7 +102,14 @@ i18n
               coefficient: '相関係数'
             },
             selectColumn: '可視化する列を選択してください',
-            errorDrawing: 'グラフの描画に失敗しました'
+            errorDrawing: 'グラフの描画に失敗しました',
+            generateInsights: 'データ分析を生成',
+            noInsightsYet: '上のボタンをクリックしてデータ分析を生成',
+            insights: {
+              error: 'データ分析の取得に失敗しました',
+              title: 'データ分析',
+              loading: 'データ分析を生成中...'
+            }
           }
         }
       },
@@ -141,7 +155,14 @@ i18n
               coefficient: 'Correlation Coefficient'
             },
             selectColumn: 'Please select a column to visualize',
-            errorDrawing: 'Error drawing chart'
+            errorDrawing: 'Error drawing chart',
+            generateInsights: 'Generate Insights',
+            noInsightsYet: 'Click the button above to generate insights',
+            insights: {
+              error: 'Failed to fetch insights',
+              title: 'Data Insights',
+              loading: 'Generating insights...'
+            }
           }
         }
       }
