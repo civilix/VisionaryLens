@@ -585,7 +585,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
       
       <div className="visualization-container">
         <Row gutter={16}>
-          <Col span={18}>
+          <Col span={16}>
             <Spin spinning={loading}>
               {currentColumn && plotData ? (
                 <Plot
@@ -602,7 +602,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
               )}
             </Spin>
           </Col>
-          <Col span={6}>
+          <Col span={8}>
             <Card style={{ height: '100%' }}>
               <Space direction="vertical" style={{ width: '100%' }}>
                 <div style={{ position: 'relative' }}>
@@ -645,7 +645,8 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
                   overflowY: 'auto',
                   padding: 8,
                   backgroundColor: '#f5f5f5',
-                  borderRadius: 4
+                  borderRadius: 4,
+                  position: 'relative'
                 }}>
                   <Spin spinning={loadingInsights} tip={t('visualization.insights.loading')}>
                     {insights ? (
@@ -656,6 +657,23 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
                       <Text>{t('visualization.noInsightsYet')}</Text>
                     )}
                   </Spin>
+                  {insights && (
+                    <Button 
+                      type="primary" 
+                      style={{ 
+                        position: 'absolute', 
+                        right: 8, 
+                        bottom: 8 
+                      }}
+                      onClick={() => {
+                        navigator.clipboard.writeText(insights)
+                          .then(() => message.success(t('visualization.insights.copied')))
+                          .catch(() => message.error(t('visualization.insights.copyError')));
+                      }}
+                    >
+                      {t('visualization.copy')}
+                    </Button>
+                  )}
                 </div>
               </Space>
             </Card>
