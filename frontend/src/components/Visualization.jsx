@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 const { Text } = Typography;
 
 const Visualization = ({ data, numeric_columns, categorical_columns }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [chartType, setChartType] = useState('');
   const [currentColumn, setCurrentColumn] = useState(numeric_columns[0] || '');
   const [transformation, setTransformation] = useState('x');
@@ -418,6 +418,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept-Language': i18n.language
         },
         body: JSON.stringify({
           all_columns: columnNames,
@@ -425,7 +426,8 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
           column_type: categorical_columns.includes(currentColumn) ? 'categorical' : 'numeric',
           chart_type: chartType,
           transformation: transformation,
-          data: columnData
+          data: columnData,
+          language: i18n.language
         })
       });
 
@@ -434,7 +436,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
       setInsights(result.insights);
     } catch (error) {
       console.error('Error fetching insights:', error);
-      message.error('获取数据洞察失败');
+      message.error(t('visualization.insights.error'));
     } finally {
       setLoadingInsights(false);
     }

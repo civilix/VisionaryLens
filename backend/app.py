@@ -107,19 +107,23 @@ def send_sample_file(filename):
 def get_insights():
     try:
         data = request.json
+        # Get language from request
+        language = data.get('language', 'zh')  # Default to Chinese if not specified
+        
         insights = generate_insights(
             all_columns=data['all_columns'],
             selected_column=data['selected_column'],
             column_type=data['column_type'],
             chart_type=data['chart_type'],
             transformation=data['transformation'],
-            data=data['data']
+            data=data['data'],
+            language=language  # Pass language to generate_insights
         )
         return jsonify({'insights': insights})
     except Exception as e:
-        print(f"生成洞察时出错: {str(e)}")
+        print(f"Error generating insights: {str(e)}")
         return jsonify({
-            "message": "生成洞察失败",
+            "message": "Failed to generate insights",
             "error": str(e)
         }), 500
 
