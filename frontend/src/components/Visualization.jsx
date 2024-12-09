@@ -40,7 +40,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
   const layout = useMemo(() => ({
     autosize: true,
     margin: { l: 50, r: 50, t: 50, b: 50 },
-    showlegend: true,
+    showlegend: false,
     title: {
       text: currentColumn ? `${currentColumn}` : '',
       font: { size: 16 }
