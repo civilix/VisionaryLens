@@ -594,9 +594,20 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
               {currentColumn && plotData ? (
                 <Plot
                   data={plotData}
-                  layout={layout}
-                  config={config}
-                  style={{ width: '100%', height: '100%' }}
+                  layout={{
+                    ...layout,
+                    autosize: true,
+                  }}
+                  config={{
+                    ...config,
+                    responsive: true,
+                  }}
+                  style={{ 
+                    width: '100%', 
+                    height: '100%',
+                    minHeight: '500px'
+                  }}
+                  useResizeHandler={true}
                   onError={() => message.error('Error drawing chart')}
                 />
               ) : (
