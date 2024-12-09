@@ -42,4 +42,4 @@ def generate_insights(all_columns, selected_column, column_type, chart_type, tra
     """
     response = chat_session.send_message([context])
     
-    return response
+    return response.text
