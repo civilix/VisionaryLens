@@ -1,8 +1,15 @@
+import os
+import sys
+
+# 添加当前目录到 Python 路径
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
+
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import pandas as pd
-import os
 import numpy as np
+from utils.insights import generate_insights
 
 app = Flask(__name__)
 CORS(app)
@@ -95,6 +102,26 @@ def send_sample_file(filename):
     except Exception as e:
         print(f"Error reading file: {e}")
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/insights', methods=['POST'])
+def get_insights():
+    try:
+        data = request.json
+        insights = generate_insights(
+            all_columns=data['all_columns'],
+            selected_column=data['selected_column'],
+            column_type=data['column_type'],
+            chart_type=data['chart_type'],
+            transformation=data['transformation'],
+            data=data['data']
+        )
+        return jsonify({'insights': insights})
+    except Exception as e:
+        print(f"生成洞察时出错: {str(e)}")
+        return jsonify({
+            "message": "生成洞察失败",
+            "error": str(e)
+        }), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)

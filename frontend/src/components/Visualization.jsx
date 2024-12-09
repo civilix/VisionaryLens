@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Space, Radio, Spin, message, Switch, InputNumber, Slider, Row, Col } from 'antd';
+import { Card, Space, Radio, Spin, message, Switch, InputNumber, Slider, Row, Col, Button, Typography } from 'antd';
 import Plot from 'react-plotly.js';
 import './Visualization.css';
 import { useTranslation } from 'react-i18next';
+
+const { Text } = Typography;
 
 const Visualization = ({ data, numeric_columns, categorical_columns }) => {
   const { t } = useTranslation();
@@ -13,6 +15,8 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
   const [plotData, setPlotData] = useState(null);
   const [showThreshold, setShowThreshold] = useState(true);
   const [correlationThreshold, setCorrelationThreshold] = useState(0);
+  const [insights, setInsights] = useState('');
+  const [loadingInsights, setLoadingInsights] = useState(false);
 
   // Add debug logs
   useEffect(() => {
@@ -401,6 +405,41 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
     ).flat() || []
   }), [calculateCorrelations, numeric_columns, showThreshold, correlationThreshold]);
 
+  // Add function to fetch insights
+  const fetchInsights = async () => {
+    if (!currentColumn || !processedData.length) return;
+
+    setLoadingInsights(true);
+    try {
+      const columnIndex = columnNames.indexOf(currentColumn);
+      const columnData = processedData.map(row => row[columnIndex]);
+      
+      const response = await fetch('http://localhost:8080/api/insights', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          all_columns: columnNames,
+          selected_column: currentColumn,
+          column_type: categorical_columns.includes(currentColumn) ? 'categorical' : 'numeric',
+          chart_type: chartType,
+          transformation: transformation,
+          data: columnData
+        })
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+      const result = await response.json();
+      setInsights(result.insights);
+    } catch (error) {
+      console.error('Error fetching insights:', error);
+      message.error('获取数据洞察失败');
+    } finally {
+      setLoadingInsights(false);
+    }
+  };
+
   return (
     <div>
       <Card style={{ marginBottom: 16 }}>
@@ -541,21 +580,51 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
       </Card>
       
       <div className="visualization-container">
-        <Spin spinning={loading}>
-          {currentColumn && plotData ? (
-            <Plot
-              data={plotData}
-              layout={layout}
-              config={config}
-              style={{ width: '100%', height: '100%' }}
-              onError={() => message.error('Error drawing chart')}
-            />
-          ) : (
-            <div className="empty-state">
-              <p>{t('visualization.selectColumn')}</p>
-            </div>
-          )}
-        </Spin>
+        <Row gutter={16}>
+          <Col span={18}>
+            <Spin spinning={loading}>
+              {currentColumn && plotData ? (
+                <Plot
+                  data={plotData}
+                  layout={layout}
+                  config={config}
+                  style={{ width: '100%', height: '100%' }}
+                  onError={() => message.error('Error drawing chart')}
+                />
+              ) : (
+                <div className="empty-state">
+                  <p>{t('visualization.selectColumn')}</p>
+                </div>
+              )}
+            </Spin>
+          </Col>
+          <Col span={6}>
+            <Card style={{ height: '100%' }}>
+              <Space direction="vertical" style={{ width: '100%' }}>
+                <Button 
+                  type="primary" 
+                  onClick={fetchInsights}
+                  loading={loadingInsights}
+                  disabled={!currentColumn}
+                  style={{ width: '100%' }}
+                >
+                  {t('visualization.generateInsights')}
+                </Button>
+                <div style={{ 
+                  marginTop: 16, 
+                  minHeight: 200,
+                  maxHeight: 400,
+                  overflowY: 'auto',
+                  padding: 8,
+                  backgroundColor: '#f5f5f5',
+                  borderRadius: 4
+                }}>
+                  <Text>{insights || t('visualization.noInsightsYet')}</Text>
+                </div>
+              </Space>
+            </Card>
+          </Col>
+        </Row>
       </div>
       
       {/* Add heatmap below existing visualization container */}
