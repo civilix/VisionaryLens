@@ -55,7 +55,8 @@ i18n
             insights: {
               error: '获取数据洞察失败',
               title: '数据洞察',
-              loading: '正在生成数据洞察...'
+              loading: '正在生成数据洞察...',
+              poweredBy: '由'
             }
           }
         }
@@ -108,7 +109,8 @@ i18n
             insights: {
               error: 'データ分析の取得に失敗しました',
               title: 'データ分析',
-              loading: 'データ分析を生成中...'
+              loading: 'データ分析を生成中...',
+              poweredBy: 'Powered by'
             }
           }
         }
@@ -161,7 +163,8 @@ i18n
             insights: {
               error: 'Failed to fetch insights',
               title: 'Data Insights',
-              loading: 'Generating insights...'
+              loading: 'Generating insights...',
+              poweredBy: 'Powered by'
             }
           }
         }

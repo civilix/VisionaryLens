@@ -3,6 +3,7 @@ import { Card, Space, Radio, Spin, message, Switch, InputNumber, Slider, Row, Co
 import Plot from 'react-plotly.js';
 import './Visualization.css';
 import { useTranslation } from 'react-i18next';
+import GeminiLogo from './Google_Gemini_logo.svg';
 
 const { Text } = Typography;
 
@@ -603,17 +604,41 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
           <Col span={6}>
             <Card style={{ height: '100%' }}>
               <Space direction="vertical" style={{ width: '100%' }}>
-                <Button 
-                  type="primary" 
-                  onClick={fetchInsights}
-                  loading={loadingInsights}
-                  disabled={!currentColumn}
-                  style={{ width: '100%' }}
-                >
-                  {t('visualization.generateInsights')}
-                </Button>
+                <div style={{ position: 'relative' }}>
+                  <Button 
+                    type="primary" 
+                    onClick={fetchInsights}
+                    loading={loadingInsights}
+                    disabled={!currentColumn}
+                    style={{ width: '100%' }}
+                  >
+                    {t('visualization.generateInsights')}
+                  </Button>
+                  <div style={{ 
+                    position: 'absolute', 
+                    right: 0, 
+                    bottom: -20, 
+                    fontSize: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    <Text type="secondary">
+                      {t('visualization.insights.poweredBy')}
+                    </Text>
+                    <img 
+                      src={GeminiLogo} 
+                      alt="Gemini" 
+                      style={{ 
+                        height: '14px',
+                        width: 'auto',
+                        verticalAlign: 'middle'
+                      }} 
+                    />
+                  </div>
+                </div>
                 <div style={{ 
-                  marginTop: 16, 
+                  marginTop: 24,
                   minHeight: 200,
                   maxHeight: 400,
                   overflowY: 'auto',
@@ -621,7 +646,9 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
                   backgroundColor: '#f5f5f5',
                   borderRadius: 4
                 }}>
-                  <Text>{insights || t('visualization.noInsightsYet')}</Text>
+                  <Spin spinning={loadingInsights} tip={t('visualization.insights.loading')}>
+                    <Text>{insights || t('visualization.noInsightsYet')}</Text>
+                  </Spin>
                 </div>
               </Space>
             </Card>
