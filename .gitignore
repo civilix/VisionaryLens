@@ -1,0 +1,111 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Logs
+logs/
+*.log
+logs/*.log
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# IDE and editor files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Build output
+dist/
+build/
+out/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Environment variables
+.env
+.env.*.local
+
+# Test coverage
+coverage/
+
+# Package lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Static analysis tools
+.eslintcache
+.stylelintcache
+
+# Other files
+*.swp
+*.bak
+*.pid
+*.seed
+*.pid.lock
+
+# Ignore frontend compiled assets
+frontend/dist/
+frontend/build/
+
+Merimaid.md
+
+# Byte-compiled files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.log
+
+# Virtual environments
+venv/
+env/
+.env/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Test coverage
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Pytest and unittest
+.cache/
+*.pytest_cache/
+*.hypothesis/
+
+# PyInstaller
+*.spec
+dist/
+build/
+
+# Django specific
+*.sqlite3
+*.log
+
+# Flask specific
+instance/
+*.db
+
+# Celery task queue
+celerybeat-schedule
+celerybeat.pid
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.bak
+*.pid
+*.seed
+*.pid.lock
