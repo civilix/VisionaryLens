@@ -437,6 +437,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
       if (!response.ok) throw new Error('Network response was not ok');
       const result = await response.json();
       setInsights(result.insights);
+      setExpandedInsights(true);
     } catch (error) {
       console.error('Error fetching insights:', error);
       message.error(t('visualization.insights.error'));
@@ -626,10 +627,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
                 <div style={{ position: 'relative' }}>
                   <Button 
                     type="primary" 
-                    onClick={() => {
-                      fetchInsights();
-                      setExpandedInsights(true);
-                    }}
+                    onClick={fetchInsights}
                     loading={loadingInsights}
                     disabled={!currentColumn}
                     style={{ width: '100%' }}
