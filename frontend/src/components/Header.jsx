@@ -24,7 +24,7 @@ const Header = () => {
         justifyContent: 'space-between',
         position: 'sticky',
         top: 0,
-        zIndex: 1,
+        zIndex: 1000,
       }}
     >
       <div style={{ 
