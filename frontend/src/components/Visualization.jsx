@@ -657,23 +657,6 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
                       <Text>{t('visualization.noInsightsYet')}</Text>
                     )}
                   </Spin>
-                  {insights && (
-                    <Button 
-                      type="primary" 
-                      style={{ 
-                        position: 'absolute', 
-                        right: 8, 
-                        bottom: 8 
-                      }}
-                      onClick={() => {
-                        navigator.clipboard.writeText(insights)
-                          .then(() => message.success(t('visualization.insights.copied')))
-                          .catch(() => message.error(t('visualization.insights.copyError')));
-                      }}
-                    >
-                      {t('visualization.copy')}
-                    </Button>
-                  )}
                 </div>
               </Space>
             </Card>
