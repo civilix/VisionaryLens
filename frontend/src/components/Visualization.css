@@ -40,4 +40,36 @@
   justify-content: center;
   align-items: center;
   height: 100%;
+}
+
+.markdown-content {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4 {
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  padding-left: 20px;
+}
+
+.markdown-content code {
+  background-color: #f0f0f0;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+.markdown-content blockquote {
+  border-left: 4px solid #ddd;
+  margin: 8px 0;
+  padding-left: 16px;
+  color: #666;
 } 

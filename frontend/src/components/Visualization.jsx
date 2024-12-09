@@ -4,8 +4,9 @@ import Plot from 'react-plotly.js';
 import './Visualization.css';
 import { useTranslation } from 'react-i18next';
 import GeminiLogo from './Google_Gemini_logo.svg';
+import ReactMarkdown from 'react-markdown';
 
-const { Text } = Typography;
+const { Text, Paragraph } = Typography;
 
 const Visualization = ({ data, numeric_columns, categorical_columns }) => {
   const { t, i18n } = useTranslation();
@@ -647,7 +648,13 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
                   borderRadius: 4
                 }}>
                   <Spin spinning={loadingInsights} tip={t('visualization.insights.loading')}>
-                    <Text>{insights || t('visualization.noInsightsYet')}</Text>
+                    {insights ? (
+                      <ReactMarkdown className="markdown-content">
+                        {insights}
+                      </ReactMarkdown>
+                    ) : (
+                      <Text>{t('visualization.noInsightsYet')}</Text>
+                    )}
                   </Spin>
                 </div>
               </Space>
