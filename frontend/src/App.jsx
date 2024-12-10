@@ -37,7 +37,7 @@ const App = () => {
     },
     {
       key: '2',
-      label: `${t('modelAnalysis')}`,
+      label: `${t('modelAnalysis.title')}`,
       children: data && (
         <ModelAnalysis 
           data={data}
