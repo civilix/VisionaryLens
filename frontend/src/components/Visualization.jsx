@@ -595,12 +595,12 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
         </Space>
       </Card>
       
-      <div className="visualization-container">
-        <Row gutter={16}>
-          <Col 
-            span={expandedInsights ? 12 : 20} 
-            style={{ transition: 'all 0.3s ease' }}
-          >
+      <Row gutter={16}>
+        <Col 
+          span={expandedInsights ? 12 : 20} 
+          style={{ transition: 'all 0.3s ease' }}
+        >
+          <Card>
             <Spin spinning={loading}>
               {currentColumn && plotData ? (
                 <Plot
@@ -627,71 +627,71 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
                 </div>
               )}
             </Spin>
-          </Col>
-          <Col 
-            span={expandedInsights ? 12 : 4} 
-            style={{ transition: 'all 0.3s ease' }}
-          >
-            <Card style={{ height: '100%' }}>
-              <Space direction="vertical" style={{ width: '100%' }}>
-                <div style={{ position: 'relative' }}>
-                  <Button 
-                    type="primary" 
-                    onClick={fetchInsights}
-                    loading={loadingInsights}
-                    disabled={!currentColumn}
-                    style={{ width: '100%' }}
-                  >
-                    {t('visualization.generateInsights')}
-                  </Button>
-                  <div style={{ 
-                    position: 'absolute', 
-                    right: 0, 
-                    bottom: -20, 
-                    fontSize: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}>
-                    <Text type="secondary">
-                      {t('visualization.insights.poweredBy')}
-                    </Text>
-                    <img 
-                      src={GeminiLogo} 
-                      alt="Gemini" 
-                      style={{ 
-                        height: '14px',
-                        width: 'auto',
-                        verticalAlign: 'middle'
-                      }} 
-                    />
-                  </div>
-                </div>
+          </Card>
+        </Col>
+        <Col 
+          span={expandedInsights ? 12 : 4} 
+          style={{ transition: 'all 0.3s ease' }}
+        >
+          <Card style={{ height: '100%' }}>
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <div style={{ position: 'relative' }}>
+                <Button 
+                  type="primary" 
+                  onClick={fetchInsights}
+                  loading={loadingInsights}
+                  disabled={!currentColumn}
+                  style={{ width: '100%' }}
+                >
+                  {t('visualization.generateInsights')}
+                </Button>
                 <div style={{ 
-                  marginTop: 24,
-                  minHeight: 200,
-                  maxHeight: 400,
-                  overflowY: 'auto',
-                  padding: 8,
-                  backgroundColor: '#f5f5f5',
-                  borderRadius: 4,
-                  position: 'relative'
+                  position: 'absolute', 
+                  right: 0, 
+                  bottom: -20, 
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
                 }}>
-                  <Spin spinning={loadingInsights} tip={t('visualization.insights.loading')}>
-                    {insights ? (
-                      <ReactMarkdown className="markdown-content">
-                        {insights}
-                      </ReactMarkdown>
-                    ) : (
-                      <Text>{t('visualization.noInsightsYet')}</Text>
-                    )}
-                  </Spin>
+                  <Text type="secondary">
+                    {t('visualization.insights.poweredBy')}
+                  </Text>
+                  <img 
+                    src={GeminiLogo} 
+                    alt="Gemini" 
+                    style={{ 
+                      height: '14px',
+                      width: 'auto',
+                      verticalAlign: 'middle'
+                    }} 
+                  />
                 </div>
-              </Space>
-            </Card>
-          </Col>
-        </Row>
-      </div>
+              </div>
+              <div style={{ 
+                marginTop: 24,
+                minHeight: 200,
+                maxHeight: 400,
+                overflowY: 'auto',
+                padding: 8,
+                backgroundColor: '#f5f5f5',
+                borderRadius: 4,
+                position: 'relative'
+              }}>
+                <Spin spinning={loadingInsights} tip={t('visualization.insights.loading')}>
+                  {insights ? (
+                    <ReactMarkdown className="markdown-content">
+                      {insights}
+                    </ReactMarkdown>
+                  ) : (
+                    <Text>{t('visualization.noInsightsYet')}</Text>
+                  )}
+                </Spin>
+              </div>
+            </Space>
+          </Card>
+        </Col>
+      </Row>
       
       {/* Add heatmap below existing visualization container */}
       {numeric_columns.length > 1 && (
