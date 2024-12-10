@@ -446,12 +446,12 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
     }
   };
 
-  // 添加一个 useEffect 来监听 expandedInsights 的变化
+  // Add effect to handle resize when insights expand
   useEffect(() => {
-    // 给 Plotly 一点时间来完成过渡动画
+    // Give Plotly some time to complete the transition animation
     const timer = setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
-    }, 300);  // 300ms 与 CSS transition 时间匹配
+    }, 300);  // 300ms matches CSS transition time
 
     return () => clearTimeout(timer);
   }, [expandedInsights]);
