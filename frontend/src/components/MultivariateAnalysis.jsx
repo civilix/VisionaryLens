@@ -86,9 +86,12 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
         { value: 'violin', label: t('visualization.charts.violinPlot') }
       ];
     } else {
+      // 两个都是分类变量
       return [
-        { value: 'heatmap', label: t('visualization.charts.heatmapPlot') },
-        { value: 'bar', label: t('visualization.charts.barPlot') }
+        { value: 'groupedBar', label: t('visualization.charts.groupedBarPlot') },
+        { value: 'stackedBar', label: t('visualization.charts.stackedBarPlot') },
+        { value: 'mosaic', label: t('visualization.charts.mosaicPlot') },
+        { value: 'heatmap', label: t('visualization.charts.heatmapPlot') }
       ];
     }
   }, [xColumn, yColumn, t]);
@@ -242,56 +245,91 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
       }];
     }
     else if (xType === 'categorical' && yType === 'categorical') {
-      // 分类 vs 分类
-      if (chartType === 'heatmap') {
-        // 创建交叉表
-        const crossTab = {};
-        const uniqueX = [...new Set(xValues)];
-        const uniqueY = [...new Set(yValues)];
-        
-        uniqueX.forEach(x => {
-          crossTab[x] = {};
-          uniqueY.forEach(y => {
-            crossTab[x][y] = 0;
+      // 创建交叉表
+      const crossTab = {};
+      const uniqueX = [...new Set(xValues)];
+      const uniqueY = [...new Set(yValues)];
+      
+      uniqueX.forEach(x => {
+        crossTab[x] = {};
+        uniqueY.forEach(y => {
+          crossTab[x][y] = 0;
+        });
+      });
+
+      xValues.forEach((x, i) => {
+        crossTab[x][yValues[i]]++;
+      });
+
+      switch (chartType) {
+        case 'groupedBar':
+          return uniqueY.map(y => ({
+            type: 'bar',
+            name: y,
+            x: uniqueX,
+            y: uniqueX.map(x => crossTab[x][y]),
+            marker: { opacity: 0.7 }
+          }));
+
+        case 'stackedBar':
+          return uniqueY.map(y => ({
+            type: 'bar',
+            name: y,
+            x: uniqueX,
+            y: uniqueX.map(x => crossTab[x][y]),
+            marker: { opacity: 0.7 }
+          }));
+
+        case 'heatmap':
+          const zValues = uniqueX.map(x => 
+            uniqueY.map(y => crossTab[x][y])
+          );
+          return [{
+            type: 'heatmap',
+            x: uniqueY,
+            y: uniqueX,
+            z: zValues,
+            colorscale: 'YlOrRd',
+            showscale: true,
+            hoverongaps: false,
+            colorbar: {
+              title: '频数',
+              thickness: 20,
+              len: 0.9
+            }
+          }];
+
+        case 'mosaic':
+          // 计算总和和比例
+          const total = xValues.length;
+          const xProportions = uniqueX.map(x => 
+            uniqueY.reduce((sum, y) => sum + crossTab[x][y], 0) / total
+          );
+          
+          return uniqueY.map((y, yi) => {
+            let cumsum = 0;
+            return {
+              type: 'bar',
+              name: y,
+              x: xProportions,
+              y: uniqueX,
+              orientation: 'h',
+              marker: { 
+                opacity: 0.7,
+                color: `hsl(${(yi * 360) / uniqueY.length}, 70%, 50%)`
+              },
+              offset: 0,
+              customdata: uniqueX.map(x => ({
+                count: crossTab[x][y],
+                percent: (crossTab[x][y] / total * 100).toFixed(1)
+              })),
+              hovertemplate: 
+                `%{y}<br>${y}: %{customdata.count}<br>占比: %{customdata.percent}%<extra></extra>`
+            };
           });
-        });
 
-        xValues.forEach((x, i) => {
-          crossTab[x][yValues[i]]++;
-        });
-
-        const zValues = uniqueX.map(x => 
-          uniqueY.map(y => crossTab[x][y])
-        );
-
-        return [{
-          type: 'heatmap',
-          x: uniqueY,
-          y: uniqueX,
-          z: zValues,
-          colorscale: 'YlOrRd',
-          showscale: true
-        }];
-      } else {
-        // 堆叠柱状图
-        const counts = {};
-        const uniqueY = [...new Set(yValues)];
-        
-        xValues.forEach((x, i) => {
-          if (!counts[x]) {
-            counts[x] = {};
-            uniqueY.forEach(y => counts[x][y] = 0);
-          }
-          counts[x][yValues[i]]++;
-        });
-
-        return uniqueY.map(y => ({
-          type: 'bar',
-          name: y,
-          x: Object.keys(counts),
-          y: Object.keys(counts).map(x => counts[x][y]),
-          marker: { opacity: 0.7 }
-        }));
+        default:
+          return null;
       }
     }
 
@@ -302,12 +340,15 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
   const layout = useMemo(() => {
     const xType = getColumnType(xColumn);
     const yType = getColumnType(yColumn);
+    const isCategoricalChart = xType === 'categorical' && yType === 'categorical';
 
     return {
       autosize: true,
       margin: { l: 80, r: 50, t: 50, b: 80 },
-      showlegend: xType === 'categorical' && yType === 'categorical' && chartType === 'bar',
-      barmode: xType === 'categorical' && yType === 'categorical' ? 'stack' : undefined,
+      showlegend: isCategoricalChart && chartType !== 'heatmap',
+      barmode: chartType === 'groupedBar' ? 'group' : 
+               chartType === 'stackedBar' ? 'stack' : undefined,
+      barnorm: chartType === 'mosaic' ? 'percent' : undefined,
       title: {
         text: `${yColumn} vs ${xColumn}`,
         font: { size: 16 }
