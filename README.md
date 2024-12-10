@@ -1,8 +1,8 @@
 ## Features
 
 - 📊 Interactive data visualization
-- ~~📈 Regression analysis~~
-- ~~🎯 Classification analysis~~
+- 🤖 Automated model analysis
+- 🔍 AI-powered data insights
 - 📁 CSV/Excel file upload support
 - 📱 Responsive design
 - 🌍 Internationalization support (i18n)
@@ -18,4 +18,5 @@
 ### Backend
 - Python
 - Flask
+- Google Gemini AI
 
