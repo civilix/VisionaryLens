@@ -59,6 +59,20 @@ i18n
               loading: '正在生成数据洞察...',
               poweredBy: '由'
             }
+          },
+          modelAnalysis: {
+            title: '模型分析',
+            selectTarget: '选择目标变量',
+            analyze: '开始分析',
+            problemType: '问题类型',
+            classification: '分类',
+            regression: '回归',
+            modelName: '模型名称',
+            baselineScore: '基准分数',
+            optimizedScore: '优化分数',
+            improvement: '提升',
+            loading: '正在分析模型...',
+            error: '模型分析失败'
           }
         }
       },
@@ -114,6 +128,20 @@ i18n
               loading: 'データ分析を生成中...',
               poweredBy: 'Powered by'
             }
+          },
+          modelAnalysis: {
+            title: 'モデル分析',
+            selectTarget: 'ターゲット変数を選択',
+            analyze: '分析を開始',
+            problemType: '問題の種類',
+            classification: '分類',
+            regression: '回帰',
+            modelName: 'モデル名',
+            baselineScore: 'ベースラインスコア',
+            optimizedScore: '最適化スコア',
+            improvement: '改善',
+            loading: 'モデル分析中...',
+            error: 'モデル分析に失敗'
           }
         }
       },
@@ -169,6 +197,20 @@ i18n
               loading: 'Generating insights...',
               poweredBy: 'Powered by'
             }
+          },
+          modelAnalysis: {
+            title: 'Model Analysis',
+            selectTarget: 'Select Target Variable',
+            analyze: 'Start Analysis',
+            problemType: 'Problem Type',
+            classification: 'Classification',
+            regression: 'Regression',
+            modelName: 'Model Name',
+            baselineScore: 'Baseline Score',
+            optimizedScore: 'Optimized Score',
+            improvement: 'Improvement',
+            loading: 'Analyzing models...',
+            error: 'Model analysis failed'
           }
         }
       }

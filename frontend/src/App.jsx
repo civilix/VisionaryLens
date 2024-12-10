@@ -7,6 +7,7 @@ import RegressionAnalysis from './components/RegressionAnalysis';
 import ClassificationAnalysis from './components/ClassificationAnalysis';
 import Header from './components/Header';
 import { useTranslation } from 'react-i18next';
+import ModelAnalysis from './components/ModelAnalysis';
 
 const { Content } = Layout;
 
@@ -36,13 +37,14 @@ const App = () => {
     },
     {
       key: '2',
-      label: `${t('regression')}`,
-      children: data && <RegressionAnalysis data={data} />
-    },
-    {
-      key: '3',
-      label: `${t('classification')}`,
-      children: data && <ClassificationAnalysis data={data} />
+      label: `${t('modelAnalysis')}`,
+      children: data && (
+        <ModelAnalysis 
+          data={data}
+          numeric_columns={numericColumns}
+          categorical_columns={categoricalColumns}
+        />
+      )
     }
   ], [data, numericColumns, categoricalColumns, t]);
 
