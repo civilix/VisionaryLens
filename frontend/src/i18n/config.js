@@ -84,7 +84,11 @@ i18n
               numeric: '数值特征',
               categorical: '类别特征'
             },
-            noData: '请选择要分析的变量'
+            noData: '请选择要分析的变量',
+            colorbar: {
+              frequency: '频数',
+              density: '密度'
+            }
           },
           modelAnalysis: {
             title: '模型分析',
@@ -182,7 +186,11 @@ i18n
               numeric: '数値特徴',
               categorical: 'カテゴリー特徴'
             },
-            noData: '分析する変数を選択してください'
+            noData: '分析する変数を選択してください',
+            colorbar: {
+              frequency: '頻度',
+              density: '密度'
+            }
           },
           modelAnalysis: {
             title: 'モデル分析',
@@ -280,7 +288,11 @@ i18n
               numeric: 'Numeric Features',
               categorical: 'Categorical Features'
             },
-            noData: 'Please select a variable to analyze'
+            noData: 'Please select a variable to analyze',
+            colorbar: {
+              frequency: 'Frequency',
+              density: 'Density'
+            }
           },
           modelAnalysis: {
             title: 'Model Analysis',

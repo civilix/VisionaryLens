@@ -183,7 +183,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
     const xType = getColumnType(xColumn);
     const yType = getColumnType(yColumn);
 
-    // 根据变量类型和转换方式处理数据
+    // Process data based on variable type and transformation method
     const transformValue = (value, transformation, columnType) => {
       if (columnType === 'categorical') return value;
       
@@ -228,16 +228,16 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
             nbinsy: 30,
             showscale: true,
             colorbar: {
-              title: '频数',
+              title: t('visualization.colorbar.frequency'),
               thickness: 20,
               len: 0.9
             }
           }];
 
         case 'jointplot':
-          // 创建联合图（散点图 + 边缘直方图）
+          // Create joint plot (scatter plot + marginal histograms)
           return [
-            // 主散点图
+            // Main scatter plot
             {
               type: 'scatter',
               x: xValues,
@@ -248,7 +248,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
               yaxis: 'y',
               showlegend: false
             },
-            // X轴边缘直方图
+            // X-axis marginal histogram
             {
               type: 'histogram',
               x: xValues,
@@ -258,7 +258,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
               yaxis: 'y2',
               showlegend: false
             },
-            // Y轴边缘直方图
+            // Y-axis marginal histogram
             {
               type: 'histogram',
               y: yValues,
@@ -289,7 +289,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
                 showlabels: true
               },
               colorbar: {
-                title: '密度',
+                title: t('visualization.colorbar.density'),
                 thickness: 20,
                 len: 0.9
               },
@@ -407,7 +407,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
             showscale: true,
             hoverongaps: false,
             colorbar: {
-              title: '频数',
+              title: t('visualization.colorbar.frequency'),
               thickness: 20,
               len: 0.9
             }
@@ -545,21 +545,21 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
             {/* X轴变量选择 */}
             <Col span={6}>
               <div className="feature-row">
-                <span className="feature-label">X轴变量:</span>
+                <span className="feature-label">{t('visualization.axisLabel.xAxis')}:</span>
                 <div className="feature-content">
                   <Select
                     value={xColumn}
                     onChange={(value) => {
                       if (value === yColumn) {
-                        message.warning('X轴和Y轴不能选择相同的变量');
+                        message.warning(t('visualization.warnings.sameVariable'));
                         return;
                       }
                       setXColumn(value);
                     }}
                     style={{ width: '100%' }}
-                    placeholder="选择X轴变量"
+                    placeholder={t('visualization.placeholders.selectXAxis')}
                   >
-                    <Select.OptGroup label="数值特征">
+                    <Select.OptGroup label={t('visualization.featureGroups.numeric')}>
                       {numeric_columns.map(col => (
                         <Option 
                           key={col} 
@@ -570,7 +570,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
                         </Option>
                       ))}
                     </Select.OptGroup>
-                    <Select.OptGroup label="类别特征">
+                    <Select.OptGroup label={t('visualization.featureGroups.categorical')}>
                       {categorical_columns.map(col => (
                         <Option 
                           key={col} 
@@ -589,13 +589,13 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
             {/* X轴变换选择 */}
             <Col span={6}>
               <div className="feature-row">
-                <span className="feature-label">X轴变换:</span>
+                <span className="feature-label">{t('visualization.axisLabel.xTransform')}:</span>
                 <div className="feature-content">
                   <Select
                     value={xTransformation}
                     onChange={setXTransformation}
                     style={{ width: '100%' }}
-                    placeholder="选择X轴变换"
+                    placeholder={t('visualization.placeholders.selectXTransform')}
                     disabled={getColumnType(xColumn) === 'categorical'}
                   >
                     {transformOptions.map(option => (
@@ -609,21 +609,21 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
             {/* Y轴变量选择 */}
             <Col span={6}>
               <div className="feature-row">
-                <span className="feature-label">Y轴变量:</span>
+                <span className="feature-label">{t('visualization.axisLabel.yAxis')}:</span>
                 <div className="feature-content">
                   <Select
                     value={yColumn}
                     onChange={(value) => {
                       if (value === xColumn) {
-                        message.warning('X轴和Y轴不能选择相同的变量');
+                        message.warning(t('visualization.warnings.sameVariable'));
                         return;
                       }
                       setYColumn(value);
                     }}
                     style={{ width: '100%' }}
-                    placeholder="选择Y轴变量"
+                    placeholder={t('visualization.placeholders.selectYAxis')}
                   >
-                    <Select.OptGroup label="数值特征">
+                    <Select.OptGroup label={t('visualization.featureGroups.numeric')}>
                       {numeric_columns.map(col => (
                         <Option 
                           key={col} 
@@ -634,7 +634,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
                         </Option>
                       ))}
                     </Select.OptGroup>
-                    <Select.OptGroup label="类别特征">
+                    <Select.OptGroup label={t('visualization.featureGroups.categorical')}>
                       {categorical_columns.map(col => (
                         <Option 
                           key={col} 
@@ -653,13 +653,13 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
             {/* Y轴变换选择 */}
             <Col span={6}>
               <div className="feature-row">
-                <span className="feature-label">Y轴变换:</span>
+                <span className="feature-label">{t('visualization.axisLabel.yTransform')}:</span>
                 <div className="feature-content">
                   <Select
                     value={yTransformation}
                     onChange={setYTransformation}
                     style={{ width: '100%' }}
-                    placeholder="选择Y轴变换"
+                    placeholder={t('visualization.placeholders.selectYTransform')}
                     disabled={getColumnType(yColumn) === 'categorical'}
                   >
                     {transformOptions.map(option => (
@@ -722,7 +722,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
                 alignItems: 'center', 
                 justifyContent: 'center' 
               }}>
-                <Text type="secondary">请选择要分析的变量</Text>
+                <Text type="secondary">{t('visualization.noData')}</Text>
               </div>
             )}
           </Spin>
