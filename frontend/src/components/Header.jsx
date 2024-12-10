@@ -1,6 +1,6 @@
 import React from 'react';
 import { Layout, Select } from 'antd';
-import { CodeOutlined, GithubOutlined } from '@ant-design/icons';
+import { GithubOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 const { Header: AntHeader } = Layout;
@@ -32,10 +32,7 @@ const Header = () => {
         alignItems: 'center',
         gap: '12px'
       }}>
-        <CodeOutlined style={{ 
-          fontSize: '24px', 
-          color: '#1890ff' 
-        }} />
+        <img src="/visionarylens.svg" alt="VisionaryLens Logo" style={{ width: '32px', height: '32px' }} />
         <h1 style={{ 
           margin: 0,
           color: '#1890ff',
