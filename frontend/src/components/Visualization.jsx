@@ -15,8 +15,6 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
   const [transformation, setTransformation] = useState('x');
   const [loading, setLoading] = useState(false);
   const [plotData, setPlotData] = useState(null);
-  const [showThreshold, setShowThreshold] = useState(true);
-  const [correlationThreshold, setCorrelationThreshold] = useState(0);
   const [insights, setInsights] = useState('');
   const [loadingInsights, setLoadingInsights] = useState(false);
   const [expandedInsights, setExpandedInsights] = useState(false);
@@ -305,108 +303,6 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
 
     return correlations;
   }, [processedData, numeric_columns, columnNames]);
-
-  // Modify heatmap data configuration
-  const heatmapData = useMemo(() => {
-    if (!calculateCorrelations) return null;
-
-    const filteredZ = calculateCorrelations.map(row =>
-      row.map(val => 
-        showThreshold && Math.abs(val) < correlationThreshold ? null : val
-      )
-    );
-
-    return [{
-      type: 'heatmap',
-      z: filteredZ,
-      x: numeric_columns,
-      y: numeric_columns,
-      colorscale: [
-        [0, '#2166ac'],      // Dark blue (strong negative correlation)
-        [0.25, '#92c5de'],   // Light blue (weak negative correlation)
-        [0.5, '#f7f7f7'],    // White (no correlation)
-        [0.75, '#fdb863'],   // Orange (weak positive correlation)
-        [1, '#b2182b']       // Red (strong positive correlation)
-      ],
-      zmin: -1,
-      zmax: 1,
-      hoverongaps: false,
-      showscale: true,
-      colorbar: {
-        title: 'Correlation Coefficient',
-        titleside: 'right',
-        thickness: 15,
-        len: 0.5,
-        y: 0.5,
-        tickformat: '.2f',
-        tickmode: 'array',
-        tickvals: [-1, -0.5, 0, 0.5, 1],
-        ticktext: ['-1.00', '-0.50', '0.00', '0.50', '1.00']
-      },
-      hovertemplate: 
-        '<b>%{y}</b> 与 <b>%{x}</b><br>' +
-        '相关系数: %{z:.3f}<br>' +
-        '<extra></extra>'
-    }];
-  }, [calculateCorrelations, numeric_columns, showThreshold, correlationThreshold]);
-
-  // Modify heatmap layout configuration
-  const heatmapLayout = useMemo(() => ({
-    title: {
-      text: 'Feature Correlation Heatmap',
-      font: {
-        size: 20,
-        family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial'
-      },
-      y: 0.95
-    },
-    autosize: true,
-    height: 600,
-    margin: { l: 120, r: 80, t: 80, b: 120 },
-    xaxis: {
-      tickangle: 45,
-      side: 'bottom',
-      tickfont: { size: 11 },
-      gridcolor: '#f0f0f0',
-      linecolor: '#e0e0e0',
-      title: {
-        text: '',
-        font: { size: 14 },
-        standoff: 30
-      }
-    },
-    yaxis: {
-      autorange: 'reversed',
-      tickfont: { size: 11 },
-      gridcolor: '#f0f0f0',
-      linecolor: '#e0e0e0',
-      title: {
-        text: '',
-        font: { size: 14 },
-        standoff: 30
-      }
-    },
-    paper_bgcolor: 'white',
-    plot_bgcolor: 'white',
-    annotations: calculateCorrelations?.map((row, i) =>
-      row.map((val, j) => ({
-        text: (!showThreshold || Math.abs(val) >= correlationThreshold) 
-          ? val.toFixed(2) 
-          : '',
-        x: numeric_columns[j],
-        y: numeric_columns[i],
-        xref: 'x',
-        yref: 'y',
-        showarrow: false,
-        font: {
-          family: 'Arial',
-          size: 10,
-          color: Math.abs(val) > 0.5 ? 'white' : 'black',
-          weight: Math.abs(val) > 0.7 ? 'bold' : 'normal'
-        }
-      }))
-    ).flat() || []
-  }), [calculateCorrelations, numeric_columns, showThreshold, correlationThreshold]);
 
   // Add function to fetch insights
   const fetchInsights = async () => {
@@ -712,86 +608,6 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
           </Card>
         </Col>
       </Row>
-      
-      {/* Add heatmap below existing visualization container */}
-      {numeric_columns.length > 1 && (
-        <Card 
-          style={{ 
-            marginTop: 16,
-            backgroundColor: '#f7f7f7',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)'
-          }}
-        >
-          <Row 
-            align="middle" 
-            style={{ 
-              marginBottom: 16,
-              padding: '8px 16px',
-              backgroundColor: '#f0f0f0',
-              borderRadius: '4px'
-            }}
-          >
-            <Col span={8}>
-              <Space>
-                <span style={{ fontWeight: 500 }}>{t('visualization.correlation.filterLowCorrelation')}:</span>
-                <Switch 
-                  checked={showThreshold}
-                  onChange={setShowThreshold}
-                  style={{ backgroundColor: showThreshold ? '#1890ff' : undefined }}
-                />
-              </Space>
-            </Col>
-            {showThreshold && (
-              <Col span={16}>
-                <Space align="center" style={{ width: '100%' }}>
-                  <span style={{ fontWeight: 500, minWidth: '60px' }}>{t('visualization.correlation.threshold')}:</span>
-                  <Slider
-                    value={correlationThreshold}
-                    onChange={setCorrelationThreshold}
-                    min={0}
-                    max={1}
-                    step={0.05}
-                    style={{ 
-                      width: '200px',
-                      margin: '0 10px'
-                    }}
-                    tooltip={{
-                      formatter: value => `${value.toFixed(2)}`
-                    }}
-                  />
-                  <span style={{ minWidth: '60px' }}>
-                    {correlationThreshold.toFixed(2)}
-                  </span>
-                </Space>
-              </Col>
-            )}
-          </Row>
-          <div className="visualization-container">
-            <Spin spinning={loading}>
-              <Plot
-                data={heatmapData}
-                layout={heatmapLayout}
-                config={{
-                  ...config,
-                  toImageButtonOptions: {
-                    format: 'png',
-                    filename: 'Correlation Heatmap',
-                    height: 1000,
-                    width: 1000,
-                    scale: 2
-                  }
-                }}
-                style={{ 
-                  width: '100%', 
-                  height: '100%',
-                  minHeight: '600px'
-                }}
-                onError={() => message.error('Error drawing heatmap')}
-              />
-            </Spin>
-          </div>
-        </Card>
-      )}
     </div>
   );
 };
