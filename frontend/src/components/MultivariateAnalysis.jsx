@@ -312,18 +312,36 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
                 <div className="feature-content">
                   <Select
                     value={xColumn}
-                    onChange={setXColumn}
+                    onChange={(value) => {
+                      if (value === yColumn) {
+                        message.warning('X轴和Y轴不能选择相同的变量');
+                        return;
+                      }
+                      setXColumn(value);
+                    }}
                     style={{ width: '100%' }}
                     placeholder="选择X轴变量"
                   >
                     <Select.OptGroup label="数值特征">
                       {numeric_columns.map(col => (
-                        <Option key={col} value={col}>{col}</Option>
+                        <Option 
+                          key={col} 
+                          value={col}
+                          disabled={col === yColumn}
+                        >
+                          {col}
+                        </Option>
                       ))}
                     </Select.OptGroup>
                     <Select.OptGroup label="类别特征">
                       {categorical_columns.map(col => (
-                        <Option key={col} value={col}>{col}</Option>
+                        <Option 
+                          key={col} 
+                          value={col}
+                          disabled={col === yColumn}
+                        >
+                          {col}
+                        </Option>
                       ))}
                     </Select.OptGroup>
                   </Select>
@@ -358,18 +376,36 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
                 <div className="feature-content">
                   <Select
                     value={yColumn}
-                    onChange={setYColumn}
+                    onChange={(value) => {
+                      if (value === xColumn) {
+                        message.warning('X轴和Y轴不能选择相同的变量');
+                        return;
+                      }
+                      setYColumn(value);
+                    }}
                     style={{ width: '100%' }}
                     placeholder="选择Y轴变量"
                   >
                     <Select.OptGroup label="数值特征">
                       {numeric_columns.map(col => (
-                        <Option key={col} value={col}>{col}</Option>
+                        <Option 
+                          key={col} 
+                          value={col}
+                          disabled={col === xColumn}
+                        >
+                          {col}
+                        </Option>
                       ))}
                     </Select.OptGroup>
                     <Select.OptGroup label="类别特征">
                       {categorical_columns.map(col => (
-                        <Option key={col} value={col}>{col}</Option>
+                        <Option 
+                          key={col} 
+                          value={col}
+                          disabled={col === xColumn}
+                        >
+                          {col}
+                        </Option>
                       ))}
                     </Select.OptGroup>
                   </Select>
