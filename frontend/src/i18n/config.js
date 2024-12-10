@@ -40,7 +40,14 @@ i18n
               violinPlot: '小提琴图',
               densityPlot: '密度图',
               scatterPlot: '散点图',
-              linePlot: '折线图'
+              linePlot: '折线图',
+              barPlot: '条形图',
+              groupedBarPlot: '分组条形图',
+              mosaicPlot: '马赛克图',
+              heatmapPlot: '热力图',
+              '2dHistogram': '二维直方图',
+              jointPlot: '联合分布图',
+              kdeJointPlot: 'KDE联合分布图'
             },
             correlation: {
               title: '特征相关性热力图',
@@ -58,7 +65,27 @@ i18n
               title: '数据洞察',
               loading: '正在生成数据洞察...',
               poweredBy: '由'
-            }
+            },
+            axisLabel: {
+              xAxis: 'X轴变量',
+              yAxis: 'Y轴变量',
+              xTransform: 'X轴变换',
+              yTransform: 'Y轴变换'
+            },
+            warnings: {
+              sameVariable: 'X轴和Y轴不能选择相同的变量'
+            },
+            placeholders: {
+              selectXAxis: '选择X轴变量',
+              selectYAxis: '选择Y轴变量',
+              selectXTransform: '选择X轴变换',
+              selectYTransform: '选择Y轴变换'
+            },
+            featureGroups: {
+              numeric: '数值特征',
+              categorical: '类别特征'
+            },
+            noData: '请选择要分析的变量'
           },
           modelAnalysis: {
             title: '模型分析',
@@ -112,7 +139,14 @@ i18n
               violinPlot: 'バイオリンプロット',
               densityPlot: '密度プロット',
               scatterPlot: '散布図',
-              linePlot: '折れ線グラフ'
+              linePlot: '折れ線グラフ',
+              barPlot: '条形図',
+              groupedBarPlot: '分組条形図',
+              mosaicPlot: 'マゼック図',
+              heatmapPlot: '熱力図',
+              '2dHistogram': '二次元ヒストグラム',
+              jointPlot: '結合分布図',
+              kdeJointPlot: 'KDE結合分布図'
             },
             correlation: {
               title: '相関ヒートマップ',
@@ -130,7 +164,27 @@ i18n
               title: 'データ分析',
               loading: 'データ分析を生成中...',
               poweredBy: 'Powered by'
-            }
+            },
+            axisLabel: {
+              xAxis: 'X軸変数',
+              yAxis: 'Y軸変数',
+              xTransform: 'X軸変換',
+              yTransform: 'Y軸変換'
+            },
+            warnings: {
+              sameVariable: 'X軸とY軸は同じ変数を選択できません'
+            },
+            placeholders: {
+              selectXAxis: 'X軸変数を選択',
+              selectYAxis: 'Y軸変数を選択',
+              selectXTransform: 'X軸変換を選択',
+              selectYTransform: 'Y軸変換を選択'
+            },
+            featureGroups: {
+              numeric: '数値特徴',
+              categorical: 'カテゴリー特徴'
+            },
+            noData: '分析する変数を選択してください'
           },
           modelAnalysis: {
             title: 'モデル分析',
@@ -184,7 +238,14 @@ i18n
               violinPlot: 'Violin Plot',
               densityPlot: 'Density Plot',
               scatterPlot: 'Scatter Plot',
-              linePlot: 'Line Plot'
+              linePlot: 'Line Plot',
+              barPlot: 'Bar Plot',
+              groupedBarPlot: 'Grouped Bar Plot',
+              mosaicPlot: 'Mosaic Plot',
+              heatmapPlot: 'Heatmap Plot',
+              '2dHistogram': '2D Histogram',
+              jointPlot: 'Joint Plot',
+              kdeJointPlot: 'KDE Joint Plot'
             },
             correlation: {
               title: 'Feature Correlation Heatmap',
@@ -202,7 +263,27 @@ i18n
               title: 'Data Insights',
               loading: 'Generating insights...',
               poweredBy: 'Powered by'
-            }
+            },
+            axisLabel: {
+              xAxis: 'X Axis Variable',
+              yAxis: 'Y Axis Variable',
+              xTransform: 'X Axis Transformation',
+              yTransform: 'Y Axis Transformation'
+            },
+            warnings: {
+              sameVariable: 'X and Y axes cannot select the same variable'
+            },
+            placeholders: {
+              selectXAxis: 'Select X Axis Variable',
+              selectYAxis: 'Select Y Axis Variable',
+              selectXTransform: 'Select X Axis Transformation',
+              selectYTransform: 'Select Y Axis Transformation'
+            },
+            featureGroups: {
+              numeric: 'Numeric Features',
+              categorical: 'Categorical Features'
+            },
+            noData: 'Please select a variable to analyze'
           },
           modelAnalysis: {
             title: 'Model Analysis',
