@@ -446,6 +446,16 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
     }
   };
 
+  // 添加一个 useEffect 来监听 expandedInsights 的变化
+  useEffect(() => {
+    // 给 Plotly 一点时间来完成过渡动画
+    const timer = setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 300);  // 300ms 与 CSS transition 时间匹配
+
+    return () => clearTimeout(timer);
+  }, [expandedInsights]);
+
   return (
     <div>
       <Card style={{ marginBottom: 16 }}>
