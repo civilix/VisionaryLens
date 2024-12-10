@@ -56,100 +56,73 @@ const HeatmapVisualization = ({ data, numeric_columns }) => {
 
   // Heatmap data configuration
   const heatmapData = useMemo(() => {
-    if (!calculateCorrelations) return null;
-
-    const filteredZ = calculateCorrelations.map(row =>
-      row.map(val => 
-        showThreshold && Math.abs(val) < correlationThreshold ? null : val
-      )
-    );
+    if (!calculateCorrelations) return [];
 
     return [{
       type: 'heatmap',
-      z: filteredZ,
+      z: calculateCorrelations,
       x: numeric_columns,
       y: numeric_columns,
-      colorscale: [
-        [0, '#2166ac'],      // Dark blue
-        [0.25, '#92c5de'],   // Light blue
-        [0.5, '#f7f7f7'],    // White
-        [0.75, '#fdb863'],   // Orange
-        [1, '#b2182b']       // Red
-      ],
+      colorscale: 'RdBu',
       zmin: -1,
       zmax: 1,
       hoverongaps: false,
       showscale: true,
       colorbar: {
-        title: '相关系数',
+        title: t('visualization.correlation.coefficient'),
         titleside: 'right',
-        thickness: 15,
-        len: 0.5,
-        y: 0.5,
-        tickformat: '.2f',
-        tickmode: 'array',
-        tickvals: [-1, -0.5, 0, 0.5, 1],
-        ticktext: ['-1.00', '-0.50', '0.00', '0.50', '1.00']
+        thickness: 20,
+        len: 0.9,
       },
-      hovertemplate: 
-        '<b>%{y}</b> 与 <b>%{x}</b><br>' +
-        '相关系数: %{z:.3f}<br>' +
-        '<extra></extra>'
+      text: calculateCorrelations.map((row, i) =>
+        row.map((val, j) => 
+          `${numeric_columns[i]} - ${numeric_columns[j]}<br>${val.toFixed(2)}`
+        )
+      ),
+      hoverinfo: 'text'
     }];
-  }, [calculateCorrelations, numeric_columns, showThreshold, correlationThreshold]);
+  }, [calculateCorrelations, numeric_columns, t]);
 
   // Heatmap layout configuration
   const heatmapLayout = useMemo(() => ({
-    title: {
-      text: '特征相关性热图',
-      font: {
-        size: 20,
-        family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial'
-      },
-      y: 0.95
-    },
     autosize: true,
-    height: 800,
-    margin: { l: 120, r: 80, t: 80, b: 120 },
-    xaxis: {
-      tickangle: 45,
-      side: 'bottom',
-      tickfont: { size: 11 },
-      gridcolor: '#f0f0f0',
-      linecolor: '#e0e0e0'
+    margin: {
+      l: 100,  // 左边距
+      r: 50,   // 右边距
+      t: 50,   // 上边距
+      b: 100   // 下边距
     },
-    yaxis: {
-      autorange: 'reversed',
-      tickfont: { size: 11 },
-      gridcolor: '#f0f0f0',
-      linecolor: '#e0e0e0'
-    },
+    title: t('visualization.correlation.title'),
     paper_bgcolor: 'white',
     plot_bgcolor: 'white',
+    height: undefined,  // 让高度自动计算
+    xaxis: {
+      tickangle: 45,    // 调整 x 轴标签角度
+      automargin: true, // 自动调整边距
+    },
+    yaxis: {
+      automargin: true, // 自动调整边距
+    },
     annotations: calculateCorrelations?.map((row, i) =>
       row.map((val, j) => ({
-        text: (!showThreshold || Math.abs(val) >= correlationThreshold) 
-          ? val.toFixed(2) 
-          : '',
+        text: val.toFixed(2),
         x: numeric_columns[j],
         y: numeric_columns[i],
         xref: 'x',
         yref: 'y',
         showarrow: false,
         font: {
-          family: 'Arial',
-          size: 10,
           color: Math.abs(val) > 0.5 ? 'white' : 'black',
-          weight: Math.abs(val) > 0.7 ? 'bold' : 'normal'
+          size: 10
         }
       }))
     ).flat() || []
-  }), [calculateCorrelations, numeric_columns, showThreshold, correlationThreshold]);
+  }), [calculateCorrelations, numeric_columns, t]);
 
   return (
     <div>
-      {numeric_columns.length > 1 ? (
-        <Card style={{ backgroundColor: '#f7f7f7' }}>
+      {numeric_columns.length >= 2 ? (
+        <Card>
           <Row 
             align="middle" 
             style={{ 
@@ -210,10 +183,12 @@ const HeatmapVisualization = ({ data, numeric_columns }) => {
                   }
                 }}
                 style={{ 
-                  width: '100%', 
+                  width: '100%',
                   height: '100%',
-                  minHeight: '800px'
+                  minHeight: '500px',
+                  maxHeight: '80vh'  // 限制最大高度为视窗高度的 80%
                 }}
+                useResizeHandler={true}
                 onError={() => message.error('绘制热图时出错')}
               />
             </Spin>
