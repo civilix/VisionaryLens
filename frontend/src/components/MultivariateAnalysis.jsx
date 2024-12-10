@@ -72,7 +72,6 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
     if (xType === 'numeric' && yType === 'numeric') {
       return [
         { value: 'scatter', label: t('visualization.charts.scatterPlot') },
-        { value: 'line', label: t('visualization.charts.linePlot') },
         { value: '2dhistogram', label: t('visualization.charts.2dHistogram') },
         { value: 'jointplot', label: t('visualization.charts.jointPlot') },
         { value: 'kdejoint', label: t('visualization.charts.kdeJointPlot') }
@@ -216,49 +215,6 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
               color: '#1890ff',
               size: 6,
               opacity: 0.6
-            }
-          }];
-
-        case 'line':
-          // 为折线图特殊处理：排序并计算平均值
-          const xyPairs = xValues.map((x, i) => ({
-            x: x,
-            y: yValues[i]
-          })).filter(pair => pair.x !== null && pair.y !== null);
-
-          // 按 X 值排序
-          xyPairs.sort((a, b) => a.x - b.x);
-
-          // 处理重复的 X 值（取平均值）
-          const aggregatedData = {};
-          xyPairs.forEach(pair => {
-            if (!aggregatedData[pair.x]) {
-              aggregatedData[pair.x] = {
-                sum: pair.y,
-                count: 1
-              };
-            } else {
-              aggregatedData[pair.x].sum += pair.y;
-              aggregatedData[pair.x].count += 1;
-            }
-          });
-
-          const uniqueX = Object.keys(aggregatedData).map(Number);
-          const averagedY = uniqueX.map(x => aggregatedData[x].sum / aggregatedData[x].count);
-
-          return [{
-            type: 'scatter',  // 使用 scatter 类型但以线条模式显示
-            x: uniqueX,
-            y: averagedY,
-            mode: 'lines+markers',
-            line: {
-              shape: 'linear',
-              width: 2,
-              color: '#1890ff'
-            },
-            marker: {
-              size: 6,
-              color: '#1890ff'
             }
           }];
 
