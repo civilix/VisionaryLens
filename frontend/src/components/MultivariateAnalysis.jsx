@@ -19,12 +19,43 @@ const transformOptions = [
 
 const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) => {
   const { t } = useTranslation();
-  const [xColumn, setXColumn] = useState('');
-  const [yColumn, setYColumn] = useState('');
+  // 设置默认值：第一个数值变量为x，第二个数值变量为y
+  const [xColumn, setXColumn] = useState(numeric_columns[0] || '');
+  const [yColumn, setYColumn] = useState(numeric_columns[1] || '');
   const [xTransformation, setXTransformation] = useState('x');
   const [yTransformation, setYTransformation] = useState('x');
   const [chartType, setChartType] = useState('scatter');
   const [loading, setLoading] = useState(false);
+
+  // 当数值列发生变化时，更新默认选择
+  useEffect(() => {
+    if (!xColumn && numeric_columns.length > 0) {
+      setXColumn(numeric_columns[0]);
+    }
+    if (!yColumn && numeric_columns.length > 1) {
+      setYColumn(numeric_columns[1]);
+    }
+  }, [numeric_columns]);
+
+  // 当 X 轴变量被取消选择时，重置为第一个可用的数值变量
+  useEffect(() => {
+    if (!xColumn && numeric_columns.length > 0) {
+      const firstAvailable = numeric_columns.find(col => col !== yColumn);
+      if (firstAvailable) {
+        setXColumn(firstAvailable);
+      }
+    }
+  }, [xColumn, yColumn, numeric_columns]);
+
+  // 当 Y 轴变量被取消选择时，重置为第二个可用的数值变量
+  useEffect(() => {
+    if (!yColumn && numeric_columns.length > 1) {
+      const secondAvailable = numeric_columns.find(col => col !== xColumn);
+      if (secondAvailable) {
+        setYColumn(secondAvailable);
+      }
+    }
+  }, [yColumn, xColumn, numeric_columns]);
 
   // 获取列的类型
   const getColumnType = (column) => {
