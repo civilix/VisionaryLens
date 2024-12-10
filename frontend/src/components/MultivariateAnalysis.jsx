@@ -72,7 +72,10 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
     if (xType === 'numeric' && yType === 'numeric') {
       return [
         { value: 'scatter', label: t('visualization.charts.scatterPlot') },
-        { value: 'line', label: t('visualization.charts.linePlot') }
+        { value: 'line', label: t('visualization.charts.linePlot') },
+        { value: '2dhistogram', label: t('visualization.charts.2dHistogram') },
+        { value: 'jointplot', label: t('visualization.charts.jointPlot') },
+        { value: 'kdejoint', label: t('visualization.charts.kdeJointPlot') }
       ];
     } else if (xType === 'categorical' && yType === 'numeric') {
       return [
@@ -136,60 +139,151 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
     const yValues = processedData.map(row => transformValue(row[yIndex], yTransformation, yType));
 
     if (xType === 'numeric' && yType === 'numeric') {
-      if (chartType === 'line') {
-        // 为折线图特殊处理：排序并计算平均值
-        const xyPairs = xValues.map((x, i) => ({
-          x: x,
-          y: yValues[i]
-        })).filter(pair => pair.x !== null && pair.y !== null);
+      switch (chartType) {
+        case 'scatter':
+          return [{
+            type: 'scatter',
+            x: xValues,
+            y: yValues,
+            mode: 'markers',
+            marker: { 
+              color: '#1890ff',
+              size: 6,
+              opacity: 0.6
+            }
+          }];
 
-        // 按 X 值排序
-        xyPairs.sort((a, b) => a.x - b.x);
+        case 'line':
+          // 为折线图特殊处理：排序并计算平均值
+          const xyPairs = xValues.map((x, i) => ({
+            x: x,
+            y: yValues[i]
+          })).filter(pair => pair.x !== null && pair.y !== null);
 
-        // 处理重复的 X 值（取平均值）
-        const aggregatedData = {};
-        xyPairs.forEach(pair => {
-          if (!aggregatedData[pair.x]) {
-            aggregatedData[pair.x] = {
-              sum: pair.y,
-              count: 1
-            };
-          } else {
-            aggregatedData[pair.x].sum += pair.y;
-            aggregatedData[pair.x].count += 1;
-          }
-        });
+          // 按 X 值排序
+          xyPairs.sort((a, b) => a.x - b.x);
 
-        const uniqueX = Object.keys(aggregatedData).map(Number);
-        const averagedY = uniqueX.map(x => aggregatedData[x].sum / aggregatedData[x].count);
+          // 处理重复的 X 值（取平均值）
+          const aggregatedData = {};
+          xyPairs.forEach(pair => {
+            if (!aggregatedData[pair.x]) {
+              aggregatedData[pair.x] = {
+                sum: pair.y,
+                count: 1
+              };
+            } else {
+              aggregatedData[pair.x].sum += pair.y;
+              aggregatedData[pair.x].count += 1;
+            }
+          });
 
-        return [{
-          type: 'scatter',  // 使用 scatter 类型但以线条模式显示
-          x: uniqueX,
-          y: averagedY,
-          mode: 'lines+markers',
-          line: {
-            shape: 'linear',
-            width: 2,
-            color: '#1890ff'
-          },
-          marker: {
-            size: 6,
-            color: '#1890ff'
-          }
-        }];
-      } else {
-        // 散点图保持不变
-        return [{
-          type: 'scatter',
-          x: xValues,
-          y: yValues,
-          mode: 'markers',
-          marker: { 
-            color: '#1890ff',
-            size: 6
-          }
-        }];
+          const uniqueX = Object.keys(aggregatedData).map(Number);
+          const averagedY = uniqueX.map(x => aggregatedData[x].sum / aggregatedData[x].count);
+
+          return [{
+            type: 'scatter',  // 使用 scatter 类型但以线条模式显示
+            x: uniqueX,
+            y: averagedY,
+            mode: 'lines+markers',
+            line: {
+              shape: 'linear',
+              width: 2,
+              color: '#1890ff'
+            },
+            marker: {
+              size: 6,
+              color: '#1890ff'
+            }
+          }];
+
+        case '2dhistogram':
+          return [{
+            type: 'histogram2d',
+            x: xValues,
+            y: yValues,
+            colorscale: 'YlOrRd',
+            nbinsx: 30,
+            nbinsy: 30,
+            showscale: true,
+            colorbar: {
+              title: '频数',
+              thickness: 20,
+              len: 0.9
+            }
+          }];
+
+        case 'jointplot':
+          // 创建联合图（散点图 + 边缘直方图）
+          return [
+            // 主散点图
+            {
+              type: 'scatter',
+              x: xValues,
+              y: yValues,
+              mode: 'markers',
+              marker: { color: '#1890ff', size: 6, opacity: 0.6 },
+              xaxis: 'x',
+              yaxis: 'y',
+              showlegend: false
+            },
+            // X轴边缘直方图
+            {
+              type: 'histogram',
+              x: xValues,
+              nbinsx: 30,
+              marker: { color: '#1890ff', opacity: 0.6 },
+              xaxis: 'x',
+              yaxis: 'y2',
+              showlegend: false
+            },
+            // Y轴边缘直方图
+            {
+              type: 'histogram',
+              y: yValues,
+              nbinsy: 30,
+              marker: { color: '#1890ff', opacity: 0.6 },
+              xaxis: 'x2',
+              yaxis: 'y',
+              showlegend: false
+            }
+          ];
+
+        case 'kdejoint':
+          // 计算KDE
+          const { xKDE, yKDE, zKDE } = calculateKDE2D(xValues, yValues);
+          return [
+            // 2D KDE 热力图
+            {
+              type: 'contour',
+              x: xKDE,
+              y: yKDE,
+              z: zKDE,
+              colorscale: 'YlOrRd',
+              showscale: true,
+              contours: {
+                coloring: 'heatmap'
+              },
+              xaxis: 'x',
+              yaxis: 'y'
+            },
+            // 散点图叠加
+            {
+              type: 'scatter',
+              x: xValues,
+              y: yValues,
+              mode: 'markers',
+              marker: { 
+                color: '#1890ff',
+                size: 4,
+                opacity: 0.3
+              },
+              xaxis: 'x',
+              yaxis: 'y'
+            }
+          ];
+
+        default:
+          return null;
       }
     } 
     else if (xType === 'categorical' && yType === 'numeric') {
@@ -336,27 +430,101 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
     return null;
   }, [data, xColumn, yColumn, xTransformation, yTransformation, chartType]);
 
+  // 辅助函数：计算2D KDE
+  const calculateKDE2D = (xValues, yValues) => {
+    // 简化版的2D KDE计算
+    const xMin = Math.min(...xValues);
+    const xMax = Math.max(...xValues);
+    const yMin = Math.min(...yValues);
+    const yMax = Math.max(...yValues);
+    
+    const gridSize = 50;
+    const xStep = (xMax - xMin) / gridSize;
+    const yStep = (yMax - yMin) / gridSize;
+    
+    const xKDE = Array.from({length: gridSize}, (_, i) => xMin + i * xStep);
+    const yKDE = Array.from({length: gridSize}, (_, i) => yMin + i * yStep);
+    
+    // 简单的密度估计
+    const zKDE = Array.from({length: gridSize}, () => 
+      Array.from({length: gridSize}, () => 0)
+    );
+    
+    // 使用高斯核进行密度估计
+    const bandwidth = 0.1;
+    xValues.forEach((x, i) => {
+      const y = yValues[i];
+      xKDE.forEach((xk, xi) => {
+        yKDE.forEach((yk, yi) => {
+          const dist = Math.sqrt(
+            Math.pow((x - xk) / (xMax - xMin), 2) + 
+            Math.pow((y - yk) / (yMax - yMin), 2)
+          );
+          zKDE[yi][xi] += Math.exp(-dist / bandwidth);
+        });
+      });
+    });
+    
+    return { xKDE, yKDE, zKDE };
+  };
+
   // 图表布局配置
   const layout = useMemo(() => {
     const xType = getColumnType(xColumn);
     const yType = getColumnType(yColumn);
-    const isCategoricalChart = xType === 'categorical' && yType === 'categorical';
+    const isJointPlot = chartType === 'jointplot';
+    const isKDEJoint = chartType === 'kdejoint';
 
-    return {
+    const baseLayout = {
       autosize: true,
       margin: { l: 80, r: 50, t: 50, b: 80 },
-      showlegend: isCategoricalChart && chartType !== 'heatmap',
-      barmode: chartType === 'groupedBar' ? 'group' : 
-               chartType === 'stackedBar' ? 'stack' : undefined,
-      barnorm: chartType === 'mosaic' ? 'percent' : undefined,
+      showlegend: false,
       title: {
         text: `${yColumn} vs ${xColumn}`,
         font: { size: 16 }
       },
+      plot_bgcolor: 'white',
+      paper_bgcolor: 'white',
+      height: 600
+    };
+
+    if (isJointPlot) {
+      return {
+        ...baseLayout,
+        grid: {
+          rows: 2,
+          columns: 2,
+          pattern: 'independent',
+          roworder: 'bottom to top'
+        },
+        xaxis: {
+          domain: [0, 0.85],
+          showgrid: true,
+          title: xColumn
+        },
+        yaxis: {
+          domain: [0, 0.85],
+          showgrid: true,
+          title: yColumn
+        },
+        xaxis2: {
+          domain: [0.85, 1],
+          showgrid: false,
+          showticklabels: false
+        },
+        yaxis2: {
+          domain: [0.85, 1],
+          showgrid: false,
+          showticklabels: false
+        }
+      };
+    }
+
+    return {
+      ...baseLayout,
       xaxis: {
         title: xColumn,
         type: xType === 'numeric' ? 'linear' : 'category',
-        tickangle: xType === 'categorical' ? 45 : 0,
         gridcolor: '#f0f0f0',
         zerolinecolor: '#e8e8e8'
       },
@@ -365,10 +533,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
         type: yType === 'numeric' ? 'linear' : 'category',
         gridcolor: '#f0f0f0',
         zerolinecolor: '#e8e8e8'
-      },
-      plot_bgcolor: 'white',
-      paper_bgcolor: 'white',
-      height: 600
+      }
     };
   }, [xColumn, yColumn, chartType]);
 
