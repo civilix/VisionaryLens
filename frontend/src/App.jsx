@@ -2,10 +2,12 @@ import React, { useState, useMemo } from 'react';
 import { Layout, Tabs, Card } from 'antd';
 import FileUpload from './components/FileUpload';
 import DataPreview from './components/DataPreview';
-import Visualization from './components/Visualization';
+import UnivariateAnalysis from './components/UnivariateAnalysis';
+import MultivariateAnalysis from './components/MultivariateAnalysis';
 import Header from './components/Header';
 import { useTranslation } from 'react-i18next';
 import ModelAnalysis from './components/ModelAnalysis';
+import HeatmapVisualization from './components/HeatmapVisualization';
 
 const { Content } = Layout;
 
@@ -24,9 +26,9 @@ const App = () => {
   const items = useMemo(() => [
     {
       key: '1',
-      label: `${t('visualizationTab')}`,
+      label: `${t('univariateAnalysis')}`,
       children: data && (
-        <Visualization 
+        <UnivariateAnalysis 
           data={data} 
           numeric_columns={numericColumns}
           categorical_columns={categoricalColumns}
@@ -35,12 +37,33 @@ const App = () => {
     },
     {
       key: '2',
+      label: `${t('multivariateAnalysis')}`,
+      children: data && (
+        <MultivariateAnalysis 
+          data={data} 
+          numeric_columns={numericColumns}
+          categorical_columns={categoricalColumns}
+        />
+      )
+    },
+    {
+      key: '3',
       label: `${t('modelAnalysis.title')}`,
       children: data && (
         <ModelAnalysis 
           data={data}
           numeric_columns={numericColumns}
           categorical_columns={categoricalColumns}
+        />
+      )
+    },
+    {
+      key: '4',
+      label: `${t('correlationAnalysis')}`,
+      children: data && (
+        <HeatmapVisualization 
+          data={data} 
+          numeric_columns={numericColumns}
         />
       )
     }

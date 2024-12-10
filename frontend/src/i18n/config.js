@@ -73,7 +73,10 @@ i18n
             improvement: '提升',
             loading: '正在分析模型...',
             error: '模型分析失败'
-          }
+          },
+          correlationAnalysis: '相关性分析',
+          univariateAnalysis: '单变量分析',
+          multivariateAnalysis: '多变量分析',
         }
       },
       ja: {
@@ -142,7 +145,10 @@ i18n
             improvement: '改善',
             loading: 'モデル分析中...',
             error: 'モデル分析に失敗'
-          }
+          },
+          correlationAnalysis: '相関分析',
+          univariateAnalysis: '単変量分析',
+          multivariateAnalysis: '多変量分析',
         }
       },
       en: {
@@ -211,7 +217,10 @@ i18n
             improvement: 'Improvement',
             loading: 'Analyzing models...',
             error: 'Model analysis failed'
-          }
+          },
+          correlationAnalysis: 'Correlation Analysis',
+          univariateAnalysis: 'Univariate Analysis',
+          multivariateAnalysis: 'Multivariate Analysis',
         }
       }
     },
