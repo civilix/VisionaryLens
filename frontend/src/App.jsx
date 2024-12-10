@@ -48,22 +48,22 @@ const App = () => {
     },
     {
       key: '3',
+      label: `${t('correlationAnalysis')}`,
+      children: data && (
+        <HeatmapVisualization 
+          data={data} 
+          numeric_columns={numericColumns}
+        />
+      )
+    },
+    {
+      key: '4',
       label: `${t('modelAnalysis.title')}`,
       children: data && (
         <ModelAnalysis 
           data={data}
           numeric_columns={numericColumns}
           categorical_columns={categoricalColumns}
-        />
-      )
-    },
-    {
-      key: '4',
-      label: `${t('correlationAnalysis')}`,
-      children: data && (
-        <HeatmapVisualization 
-          data={data} 
-          numeric_columns={numericColumns}
         />
       )
     }
