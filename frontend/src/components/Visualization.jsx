@@ -682,10 +682,10 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
               </div>
               <div style={{ 
                 marginTop: 24,
-                minHeight: 200,
-                maxHeight: 400,
+                minHeight: 400,
+                maxHeight: 600,
                 overflowY: 'auto',
-                padding: 8,
+                padding: 16,
                 backgroundColor: '#f5f5f5',
                 borderRadius: 4,
                 position: 'relative'
@@ -696,7 +696,15 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
                       {insights}
                     </ReactMarkdown>
                   ) : (
-                    <Text>{t('visualization.noInsightsYet')}</Text>
+                    <div style={{ 
+                      height: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#999'
+                    }}>
+                      <Text>{t('visualization.noInsightsYet')}</Text>
+                    </div>
                   )}
                 </Spin>
               </div>
