@@ -106,6 +106,73 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
     }
   }, [availableChartTypes]);
 
+  // 辅助函数：计算1D KDE
+  const calculateKDE1D = (values, points) => {
+    const bandwidth = 0.1 * (Math.max(...values) - Math.min(...values));
+    return points.map(x => {
+      const density = values.reduce((sum, v) => {
+        const z = (x - v) / bandwidth;
+        return sum + Math.exp(-0.5 * z * z) / (bandwidth * Math.sqrt(2 * Math.PI));
+      }, 0) / values.length;
+      return density;
+    });
+  };
+
+  // 辅助函数：计算2D KDE
+  const calculateKDE2D = (xValues, yValues) => {
+    try {
+      // 移除无效值
+      const validPairs = xValues.map((x, i) => [x, yValues[i]])
+        .filter(([x, y]) => x !== null && y !== null && !isNaN(x) && !isNaN(y));
+      
+      const cleanX = validPairs.map(([x]) => x);
+      const cleanY = validPairs.map(([_, y]) => y);
+
+      // 计算数据范围
+      const xMin = Math.min(...cleanX);
+      const xMax = Math.max(...cleanX);
+      const yMin = Math.min(...cleanY);
+      const yMax = Math.max(...cleanY);
+
+      // 创建网格
+      const gridSize = 50;
+      const xGrid = Array.from({length: gridSize}, (_, i) => 
+        xMin + (i / (gridSize - 1)) * (xMax - xMin)
+      );
+      const yGrid = Array.from({length: gridSize}, (_, i) => 
+        yMin + (i / (gridSize - 1)) * (yMax - yMin)
+      );
+
+      // 计算带宽
+      const xBandwidth = 0.1 * (xMax - xMin);
+      const yBandwidth = 0.1 * (yMax - yMin);
+
+      // 计算密度
+      const density = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
+
+      for (let i = 0; i < gridSize; i++) {
+        for (let j = 0; j < gridSize; j++) {
+          let sum = 0;
+          for (let k = 0; k < cleanX.length; k++) {
+            const xKernel = Math.exp(-0.5 * Math.pow((xGrid[i] - cleanX[k]) / xBandwidth, 2));
+            const yKernel = Math.exp(-0.5 * Math.pow((yGrid[j] - cleanY[k]) / yBandwidth, 2));
+            sum += xKernel * yKernel;
+          }
+          density[j][i] = sum / (cleanX.length * xBandwidth * yBandwidth * 2 * Math.PI);
+        }
+      }
+
+      return {
+        xKDE: xGrid,
+        yKDE: yGrid,
+        zKDE: density
+      };
+    } catch (error) {
+      console.error('KDE calculation error:', error);
+      return null;
+    }
+  };
+
   // 处理数据并创建图表
   const processData = useMemo(() => {
     if (!data || !xColumn || !yColumn) return null;
@@ -249,10 +316,12 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
           ];
 
         case 'kdejoint':
-          // 计算KDE
-          const { xKDE, yKDE, zKDE } = calculateKDE2D(xValues, yValues);
+          const kdeResult = calculateKDE2D(xValues, yValues);
+          if (!kdeResult) return null;
+
+          const { xKDE, yKDE, zKDE } = kdeResult;
           return [
-            // 2D KDE 热力图
+            // 2D KDE 等高线图
             {
               type: 'contour',
               x: xKDE,
@@ -261,10 +330,17 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
               colorscale: 'YlOrRd',
               showscale: true,
               contours: {
-                coloring: 'heatmap'
+                coloring: 'heatmap',
+                showlabels: true
               },
-              xaxis: 'x',
-              yaxis: 'y'
+              colorbar: {
+                title: '密度',
+                thickness: 20,
+                len: 0.9
+              },
+              line: {
+                smoothing: 1.3
+              }
             },
             // 散点图叠加
             {
@@ -276,9 +352,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
                 color: '#1890ff',
                 size: 4,
                 opacity: 0.3
-              },
-              xaxis: 'x',
-              yaxis: 'y'
+              }
             }
           ];
 
@@ -430,44 +504,6 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
     return null;
   }, [data, xColumn, yColumn, xTransformation, yTransformation, chartType]);
 
-  // 辅助函数：计算2D KDE
-  const calculateKDE2D = (xValues, yValues) => {
-    // 简化版的2D KDE计算
-    const xMin = Math.min(...xValues);
-    const xMax = Math.max(...xValues);
-    const yMin = Math.min(...yValues);
-    const yMax = Math.max(...yValues);
-    
-    const gridSize = 50;
-    const xStep = (xMax - xMin) / gridSize;
-    const yStep = (yMax - yMin) / gridSize;
-    
-    const xKDE = Array.from({length: gridSize}, (_, i) => xMin + i * xStep);
-    const yKDE = Array.from({length: gridSize}, (_, i) => yMin + i * yStep);
-    
-    // 简单的密度估计
-    const zKDE = Array.from({length: gridSize}, () => 
-      Array.from({length: gridSize}, () => 0)
-    );
-    
-    // 使用高斯核进行密度估计
-    const bandwidth = 0.1;
-    xValues.forEach((x, i) => {
-      const y = yValues[i];
-      xKDE.forEach((xk, xi) => {
-        yKDE.forEach((yk, yi) => {
-          const dist = Math.sqrt(
-            Math.pow((x - xk) / (xMax - xMin), 2) + 
-            Math.pow((y - yk) / (yMax - yMin), 2)
-          );
-          zKDE[yi][xi] += Math.exp(-dist / bandwidth);
-        });
-      });
-    });
-    
-    return { xKDE, yKDE, zKDE };
-  };
-
   // 图表布局配置
   const layout = useMemo(() => {
     const xType = getColumnType(xColumn);
@@ -516,6 +552,24 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
           domain: [0.85, 1],
           showgrid: false,
           showticklabels: false
+        }
+      };
+    }
+
+    if (chartType === 'kdejoint') {
+      return {
+        ...baseLayout,
+        showlegend: false,
+        margin: { l: 60, r: 60, t: 40, b: 60 },
+        xaxis: {
+          title: xColumn,
+          showgrid: true,
+          zeroline: false
+        },
+        yaxis: {
+          title: yColumn,
+          showgrid: true,
+          zeroline: false
         }
       };
     }
