@@ -456,6 +456,9 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
     return () => clearTimeout(timer);
   }, [expandedInsights]);
 
+  // Add a consistent transition duration variable
+  const TRANSITION_DURATION = '0.3s';
+
   return (
     <div>
       <Card style={{ marginBottom: 16 }}>
@@ -598,7 +601,9 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
       <Row gutter={16}>
         <Col 
           span={expandedInsights ? 12 : 20} 
-          style={{ transition: 'all 0.3s ease' }}
+          style={{ 
+            transition: `all ${TRANSITION_DURATION} cubic-bezier(0.4, 0, 0.2, 1)`
+          }}
         >
           <Card>
             <Spin spinning={loading}>
@@ -608,15 +613,20 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
                   layout={{
                     ...layout,
                     autosize: true,
+                    transition: {
+                      duration: 300,  // Match with CSS transition (300ms)
+                      easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+                    }
                   }}
                   config={{
                     ...config,
-                    responsive: true,
+                    responsive: true
                   }}
                   style={{ 
                     width: '100%', 
                     height: '100%',
-                    minHeight: '500px'
+                    minHeight: '500px',
+                    transition: `all ${TRANSITION_DURATION} cubic-bezier(0.4, 0, 0.2, 1)`
                   }}
                   useResizeHandler={true}
                   onError={() => message.error('Error drawing chart')}
@@ -631,7 +641,9 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
         </Col>
         <Col 
           span={expandedInsights ? 12 : 4} 
-          style={{ transition: 'all 0.3s ease' }}
+          style={{ 
+            transition: `all ${TRANSITION_DURATION} cubic-bezier(0.4, 0, 0.2, 1)`
+          }}
         >
           <Card style={{ height: '100%' }}>
             <Space direction="vertical" style={{ width: '100%' }}>
