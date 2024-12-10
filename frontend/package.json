@@ -12,9 +12,13 @@
   "dependencies": {
     "@ant-design/icons": "^5.5.2",
     "antd": "^5.22.3",
+    "i18next": "^24.0.5",
+    "i18next-browser-languagedetector": "^8.0.2",
     "plotly.js": "^2.35.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-i18next": "^15.1.4",
+    "react-markdown": "^9.0.1",
     "react-plotly.js": "^2.6.0",
     "xlsx": "^0.18.5"
   },
