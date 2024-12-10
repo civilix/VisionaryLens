@@ -655,7 +655,7 @@ const Visualization = ({ data, numeric_columns, categorical_columns }) => {
                   disabled={!currentColumn}
                   style={{ width: '100%' }}
                 >
-                  {t('visualization.generateInsights')}
+                  {insights ? t('visualization.regenerateInsights') : t('visualization.generateInsights')}
                 </Button>
                 <div style={{ 
                   position: 'absolute', 
