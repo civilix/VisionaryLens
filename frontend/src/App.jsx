@@ -3,8 +3,6 @@ import { Layout, Tabs, Card } from 'antd';
 import FileUpload from './components/FileUpload';
 import DataPreview from './components/DataPreview';
 import Visualization from './components/Visualization';
-import RegressionAnalysis from './components/RegressionAnalysis';
-import ClassificationAnalysis from './components/ClassificationAnalysis';
 import Header from './components/Header';
 import { useTranslation } from 'react-i18next';
 import ModelAnalysis from './components/ModelAnalysis';
