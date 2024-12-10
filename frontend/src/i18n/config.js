@@ -183,8 +183,8 @@ i18n
               selectYTransform: 'Y軸変換を選択'
             },
             featureGroups: {
-              numeric: '数値特徴',
-              categorical: 'カテゴリー特徴'
+              numeric: '数値データ',
+              categorical: 'カテゴリーデータ'
             },
             noData: '分析する変数を選択してください',
             colorbar: {
