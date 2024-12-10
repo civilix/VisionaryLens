@@ -92,7 +92,6 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
       // 两个都是分类变量
       return [
         { value: 'groupedBar', label: t('visualization.charts.groupedBarPlot') },
-        { value: 'stackedBar', label: t('visualization.charts.stackedBarPlot') },
         { value: 'mosaic', label: t('visualization.charts.mosaicPlot') },
         { value: 'heatmap', label: t('visualization.charts.heatmapPlot') }
       ];
@@ -431,15 +430,6 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
 
       switch (chartType) {
         case 'groupedBar':
-          return uniqueY.map(y => ({
-            type: 'bar',
-            name: y,
-            x: uniqueX,
-            y: uniqueX.map(x => crossTab[x][y]),
-            marker: { opacity: 0.7 }
-          }));
-
-        case 'stackedBar':
           return uniqueY.map(y => ({
             type: 'bar',
             name: y,
