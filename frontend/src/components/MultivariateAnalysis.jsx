@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 const { Text } = Typography;
 const { Option } = Select;
 
-// 定义变换选项
+// Define transformation options
 const transformOptions = [
   { value: 'x', label: 'x' },
   { value: 'x^2', label: 'x²' },
@@ -19,7 +19,7 @@ const transformOptions = [
 
 const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) => {
   const { t } = useTranslation();
-  // 设置默认值：第一个数值变量为x，第二个数值变量为y
+  // Set default values: first numeric variable for x, second for y
   const [xColumn, setXColumn] = useState(numeric_columns[0] || '');
   const [yColumn, setYColumn] = useState(numeric_columns[1] || '');
   const [xTransformation, setXTransformation] = useState('x');
@@ -27,7 +27,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
   const [chartType, setChartType] = useState('scatter');
   const [loading, setLoading] = useState(false);
 
-  // 当数值列发生变化时，更新默认选择
+  // Update default selections when numeric columns change
   useEffect(() => {
     if (!xColumn && numeric_columns.length > 0) {
       setXColumn(numeric_columns[0]);
@@ -37,7 +37,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
     }
   }, [numeric_columns]);
 
-  // 当 X 轴变量被取消选择时，重置为第一个可用的数值变量
+  // Reset to first available numeric variable when X axis variable is deselected
   useEffect(() => {
     if (!xColumn && numeric_columns.length > 0) {
       const firstAvailable = numeric_columns.find(col => col !== yColumn);
@@ -47,7 +47,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
     }
   }, [xColumn, yColumn, numeric_columns]);
 
-  // 当 Y 轴变量被取消选择时，重置为第二个可用的数值变量
+  // Reset to second available numeric variable when Y axis variable is deselected
   useEffect(() => {
     if (!yColumn && numeric_columns.length > 1) {
       const secondAvailable = numeric_columns.find(col => col !== xColumn);
@@ -57,12 +57,12 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
     }
   }, [yColumn, xColumn, numeric_columns]);
 
-  // 获取列的类型
+  // Get column type
   const getColumnType = (column) => {
     return numeric_columns.includes(column) ? 'numeric' : 'categorical';
   };
 
-  // 根据选择的列类型确定可用的图表类型
+  // Determine available chart types based on selected column types
   const availableChartTypes = useMemo(() => {
     const xType = getColumnType(xColumn);
     const yType = getColumnType(yColumn);
@@ -89,7 +89,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
         { value: 'violin', label: t('visualization.charts.violinPlot') }
       ];
     } else {
-      // 两个都是分类变量
+      // Both variables are categorical
       return [
         { value: 'groupedBar', label: t('visualization.charts.groupedBarPlot') },
         { value: 'mosaic', label: t('visualization.charts.mosaicPlot') },
@@ -98,14 +98,14 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
     }
   }, [xColumn, yColumn, t]);
 
-  // 当可用图表类型改变时，自动选择第一个可用的图表类型
+  // Automatically select first available chart type when available types change
   useEffect(() => {
     if (availableChartTypes.length > 0) {
       setChartType(availableChartTypes[0].value);
     }
   }, [availableChartTypes]);
 
-  // 辅助函数：计算1D KDE
+  // Helper function: Calculate 1D KDE
   const calculateKDE1D = (values, points) => {
     const bandwidth = 0.1 * (Math.max(...values) - Math.min(...values));
     return points.map(x => {
@@ -117,23 +117,23 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
     });
   };
 
-  // 辅助函数：计算2D KDE
+  // Helper function: Calculate 2D KDE
   const calculateKDE2D = (xValues, yValues) => {
     try {
-      // 移除无效值
+      // Remove invalid values
       const validPairs = xValues.map((x, i) => [x, yValues[i]])
         .filter(([x, y]) => x !== null && y !== null && !isNaN(x) && !isNaN(y));
       
       const cleanX = validPairs.map(([x]) => x);
       const cleanY = validPairs.map(([_, y]) => y);
 
-      // 计算数据范围
+      // Calculate data range
       const xMin = Math.min(...cleanX);
       const xMax = Math.max(...cleanX);
       const yMin = Math.min(...cleanY);
       const yMax = Math.max(...cleanY);
 
-      // 创建网格
+      // Create grid
       const gridSize = 50;
       const xGrid = Array.from({length: gridSize}, (_, i) => 
         xMin + (i / (gridSize - 1)) * (xMax - xMin)
@@ -142,11 +142,11 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
         yMin + (i / (gridSize - 1)) * (yMax - yMin)
       );
 
-      // 计算带宽
+      // Calculate bandwidth
       const xBandwidth = 0.1 * (xMax - xMin);
       const yBandwidth = 0.1 * (yMax - yMin);
 
-      // 计算密度
+      // Calculate density
       const density = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
 
       for (let i = 0; i < gridSize; i++) {
@@ -172,7 +172,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
     }
   };
 
-  // 处理数据并创建图表
+  // Process data and create chart
   const processData = useMemo(() => {
     if (!data || !xColumn || !yColumn) return null;
 
@@ -494,7 +494,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
     return null;
   }, [data, xColumn, yColumn, xTransformation, yTransformation, chartType]);
 
-  // 图表布局配置
+  // Chart layout configuration
   const layout = useMemo(() => {
     const xType = getColumnType(xColumn);
     const yType = getColumnType(yColumn);
