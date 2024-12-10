@@ -78,8 +78,13 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
     const yIndex = columnNames.indexOf(yColumn);
     const processedData = data.slice(1);
 
+    const xType = getColumnType(xColumn);
+    const yType = getColumnType(yColumn);
+
     // 根据变量类型和转换方式处理数据
-    const transformValue = (value, transformation) => {
+    const transformValue = (value, transformation, columnType) => {
+      if (columnType === 'categorical') return value;
+      
       const num = parseFloat(value);
       if (isNaN(num)) return value;
       
@@ -93,98 +98,207 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
       }
     };
 
-    const xValues = processedData.map(row => transformValue(row[xIndex], xTransformation));
-    const yValues = processedData.map(row => transformValue(row[yIndex], yTransformation));
+    const xValues = processedData.map(row => transformValue(row[xIndex], xTransformation, xType));
+    const yValues = processedData.map(row => transformValue(row[yIndex], yTransformation, yType));
 
-    // 根据图表类型创建不同的数据结构
-    switch (chartType) {
-      case 'scatter':
-      case 'line':
+    if (xType === 'numeric' && yType === 'numeric') {
+      if (chartType === 'line') {
+        // 为折线图特殊处理：排序并计算平均值
+        const xyPairs = xValues.map((x, i) => ({
+          x: x,
+          y: yValues[i]
+        })).filter(pair => pair.x !== null && pair.y !== null);
+
+        // 按 X 值排序
+        xyPairs.sort((a, b) => a.x - b.x);
+
+        // 处理重复的 X 值（取平均值）
+        const aggregatedData = {};
+        xyPairs.forEach(pair => {
+          if (!aggregatedData[pair.x]) {
+            aggregatedData[pair.x] = {
+              sum: pair.y,
+              count: 1
+            };
+          } else {
+            aggregatedData[pair.x].sum += pair.y;
+            aggregatedData[pair.x].count += 1;
+          }
+        });
+
+        const uniqueX = Object.keys(aggregatedData).map(Number);
+        const averagedY = uniqueX.map(x => aggregatedData[x].sum / aggregatedData[x].count);
+
         return [{
-          type: chartType,
-          x: xValues,
-          y: yValues,
-          mode: chartType === 'line' ? 'lines+markers' : 'markers',
-          marker: { color: '#1890ff' }
-        }];
-      
-      case 'box':
-      case 'violin':
-        return [{
-          type: chartType,
-          x: xValues,
-          y: yValues,
-          box: {
-            visible: true
-          },
+          type: 'scatter',  // 使用 scatter 类型但以线条模式显示
+          x: uniqueX,
+          y: averagedY,
+          mode: 'lines+markers',
           line: {
+            shape: 'linear',
+            width: 2,
             color: '#1890ff'
           },
-          meanline: {
-            visible: true
+          marker: {
+            size: 6,
+            color: '#1890ff'
           }
         }];
-      
-      case 'bar':
-        // 对分类数据进行计数
-        const counts = {};
+      } else {
+        // 散点图保持不变
+        return [{
+          type: 'scatter',
+          x: xValues,
+          y: yValues,
+          mode: 'markers',
+          marker: { 
+            color: '#1890ff',
+            size: 6
+          }
+        }];
+      }
+    } 
+    else if (xType === 'categorical' && yType === 'numeric') {
+      // 分类 vs 数值
+      if (chartType === 'bar') {
+        // 计算每个类别的平均值
+        const categoryStats = {};
         xValues.forEach((x, i) => {
-          const key = `${x}-${yValues[i]}`;
-          counts[key] = (counts[key] || 0) + 1;
+          if (!categoryStats[x]) {
+            categoryStats[x] = { sum: 0, count: 0 };
+          }
+          if (yValues[i] !== null) {
+            categoryStats[x].sum += yValues[i];
+            categoryStats[x].count += 1;
+          }
         });
-        
+
+        const categories = Object.keys(categoryStats);
+        const averages = categories.map(cat => 
+          categoryStats[cat].count > 0 ? categoryStats[cat].sum / categoryStats[cat].count : 0
+        );
+
         return [{
           type: 'bar',
-          x: Object.keys(counts).map(k => k.split('-')[0]),
-          y: Object.values(counts),
+          x: categories,
+          y: averages,
           marker: { color: '#1890ff' }
         }];
-      
-      case 'heatmap':
-        // 创建热力图数据
-        const heatmapData = {};
-        xValues.forEach((x, i) => {
-          if (!heatmapData[x]) heatmapData[x] = {};
-          heatmapData[x][yValues[i]] = (heatmapData[x][yValues[i]] || 0) + 1;
-        });
-        
+      } else {
+        // 箱线图或小提琴图
+        return [{
+          type: chartType,
+          x: xValues,
+          y: yValues,
+          boxpoints: 'outliers',
+          jitter: 0.3,
+          pointpos: -1.8,
+          marker: { color: '#1890ff' }
+        }];
+      }
+    }
+    else if (xType === 'numeric' && yType === 'categorical') {
+      // 数值 vs 分类
+      return [{
+        type: chartType,
+        x: xValues,
+        y: yValues,
+        orientation: 'h',  // 水平方向
+        boxpoints: 'outliers',
+        jitter: 0.3,
+        pointpos: -1.8,
+        marker: { color: '#1890ff' }
+      }];
+    }
+    else if (xType === 'categorical' && yType === 'categorical') {
+      // 分类 vs 分类
+      if (chartType === 'heatmap') {
+        // 创建交叉表
+        const crossTab = {};
         const uniqueX = [...new Set(xValues)];
         const uniqueY = [...new Set(yValues)];
-        const zValues = uniqueX.map(x => 
-          uniqueY.map(y => heatmapData[x]?.[y] || 0)
-        );
         
+        uniqueX.forEach(x => {
+          crossTab[x] = {};
+          uniqueY.forEach(y => {
+            crossTab[x][y] = 0;
+          });
+        });
+
+        xValues.forEach((x, i) => {
+          crossTab[x][yValues[i]]++;
+        });
+
+        const zValues = uniqueX.map(x => 
+          uniqueY.map(y => crossTab[x][y])
+        );
+
         return [{
           type: 'heatmap',
-          x: uniqueX,
-          y: uniqueY,
+          x: uniqueY,
+          y: uniqueX,
           z: zValues,
-          colorscale: 'YlOrRd'
+          colorscale: 'YlOrRd',
+          showscale: true
         }];
-      
-      default:
-        return null;
+      } else {
+        // 堆叠柱状图
+        const counts = {};
+        const uniqueY = [...new Set(yValues)];
+        
+        xValues.forEach((x, i) => {
+          if (!counts[x]) {
+            counts[x] = {};
+            uniqueY.forEach(y => counts[x][y] = 0);
+          }
+          counts[x][yValues[i]]++;
+        });
+
+        return uniqueY.map(y => ({
+          type: 'bar',
+          name: y,
+          x: Object.keys(counts),
+          y: Object.keys(counts).map(x => counts[x][y]),
+          marker: { opacity: 0.7 }
+        }));
+      }
     }
+
+    return null;
   }, [data, xColumn, yColumn, xTransformation, yTransformation, chartType]);
 
   // 图表布局配置
-  const layout = useMemo(() => ({
-    autosize: true,
-    margin: { l: 50, r: 50, t: 50, b: 50 },
-    showlegend: false,
-    title: {
-      text: `${yColumn} vs ${xColumn}`,
-      font: { size: 16 }
-    },
-    xaxis: {
-      title: xColumn,
-      type: getColumnType(xColumn) === 'numeric' ? 'linear' : 'category'
-    },
-    yaxis: {
-      title: yColumn,
-      type: getColumnType(yColumn) === 'numeric' ? 'linear' : 'category'
-    }
-  }), [xColumn, yColumn]);
+  const layout = useMemo(() => {
+    const xType = getColumnType(xColumn);
+    const yType = getColumnType(yColumn);
+
+    return {
+      autosize: true,
+      margin: { l: 80, r: 50, t: 50, b: 80 },
+      showlegend: xType === 'categorical' && yType === 'categorical' && chartType === 'bar',
+      barmode: xType === 'categorical' && yType === 'categorical' ? 'stack' : undefined,
+      title: {
+        text: `${yColumn} vs ${xColumn}`,
+        font: { size: 16 }
+      },
+      xaxis: {
+        title: xColumn,
+        type: xType === 'numeric' ? 'linear' : 'category',
+        tickangle: xType === 'categorical' ? 45 : 0,
+        gridcolor: '#f0f0f0',
+        zerolinecolor: '#e8e8e8'
+      },
+      yaxis: {
+        title: yColumn,
+        type: yType === 'numeric' ? 'linear' : 'category',
+        gridcolor: '#f0f0f0',
+        zerolinecolor: '#e8e8e8'
+      },
+      plot_bgcolor: 'white',
+      paper_bgcolor: 'white',
+      height: 600
+    };
+  }, [xColumn, yColumn, chartType]);
 
   return (
     <div>
@@ -202,9 +316,16 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
                     style={{ width: '100%' }}
                     placeholder="选择X轴变量"
                   >
-                    {numeric_columns.map(col => (
-                      <Option key={col} value={col}>{col}</Option>
-                    ))}
+                    <Select.OptGroup label="数值特征">
+                      {numeric_columns.map(col => (
+                        <Option key={col} value={col}>{col}</Option>
+                      ))}
+                    </Select.OptGroup>
+                    <Select.OptGroup label="类别特征">
+                      {categorical_columns.map(col => (
+                        <Option key={col} value={col}>{col}</Option>
+                      ))}
+                    </Select.OptGroup>
                   </Select>
                 </div>
               </div>
@@ -220,6 +341,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
                     onChange={setXTransformation}
                     style={{ width: '100%' }}
                     placeholder="选择X轴变换"
+                    disabled={getColumnType(xColumn) === 'categorical'}
                   >
                     {transformOptions.map(option => (
                       <Option key={option.value} value={option.value}>{option.label}</Option>
@@ -240,9 +362,16 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
                     style={{ width: '100%' }}
                     placeholder="选择Y轴变量"
                   >
-                    {numeric_columns.map(col => (
-                      <Option key={col} value={col}>{col}</Option>
-                    ))}
+                    <Select.OptGroup label="数值特征">
+                      {numeric_columns.map(col => (
+                        <Option key={col} value={col}>{col}</Option>
+                      ))}
+                    </Select.OptGroup>
+                    <Select.OptGroup label="类别特征">
+                      {categorical_columns.map(col => (
+                        <Option key={col} value={col}>{col}</Option>
+                      ))}
+                    </Select.OptGroup>
                   </Select>
                 </div>
               </div>
@@ -258,6 +387,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
                     onChange={setYTransformation}
                     style={{ width: '100%' }}
                     placeholder="选择Y轴变换"
+                    disabled={getColumnType(yColumn) === 'categorical'}
                   >
                     {transformOptions.map(option => (
                       <Option key={option.value} value={option.value}>{option.label}</Option>
