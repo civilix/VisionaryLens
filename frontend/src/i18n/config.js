@@ -51,6 +51,7 @@ i18n
             selectColumn: '请选择要可视化的列',
             errorDrawing: '绘制图表出错',
             generateInsights: '生成数据洞察',
+            regenerateInsights: '重新生成洞察',
             noInsightsYet: '点击上方按钮生成数据洞察',
             insights: {
               error: '获取数据洞察失败',
@@ -105,6 +106,7 @@ i18n
             selectColumn: '可視化する列を選択してください',
             errorDrawing: 'グラフの描画に失敗しました',
             generateInsights: 'データ分析を生成',
+            regenerateInsights: '分析を再生成',
             noInsightsYet: '上のボタンをクリックしてデータ分析を生成',
             insights: {
               error: 'データ分析の取得に失敗しました',
@@ -159,6 +161,7 @@ i18n
             selectColumn: 'Please select a column to visualize',
             errorDrawing: 'Error drawing chart',
             generateInsights: 'Generate Insights',
+            regenerateInsights: 'Regenerate Insights',
             noInsightsYet: 'Click the button above to generate insights',
             insights: {
               error: 'Failed to fetch insights',
