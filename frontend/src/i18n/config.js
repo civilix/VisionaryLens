@@ -91,7 +91,7 @@ i18n
             }
           },
           modelAnalysis: {
-            title: '模型分析',
+            title: '基准模型评估',
             selectTarget: '选择目标变量',
             analyze: '开始分析',
             problemType: '问题类型',
@@ -193,10 +193,10 @@ i18n
             }
           },
           modelAnalysis: {
-            title: 'モデル分析',
-            selectTarget: 'ターゲット変数を選択',
-            analyze: '分析を開始',
-            problemType: '問題の種類',
+            title: 'ベースラインモデル比較',
+            selectTarget: '目標変数の選択',
+            analyze: '分析開始',
+            problemType: '問題タイプ',
             classification: '分類',
             regression: '回帰',
             modelName: 'モデル名',
@@ -295,7 +295,7 @@ i18n
             }
           },
           modelAnalysis: {
-            title: 'Model Analysis',
+            title: 'Baseline Model Evaluation',
             selectTarget: 'Select Target Variable',
             analyze: 'Start Analysis',
             problemType: 'Problem Type',
