@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Select, Button, Space, Table, Spin, message } from 'antd';
 import { useTranslation } from 'react-i18next';
+import axios from '../utils/axios';
 
 const { Option } = Select;
 
@@ -27,23 +28,15 @@ const ModelAnalysis = ({ data, numeric_columns, categorical_columns }) => {
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8080/api/model-analysis', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          data: data.slice(1), // Exclude header row
-          columns: columnNames,
-          target_column: targetColumn,
-          problem_type: getProblemType(targetColumn),
-          numeric_columns,
-          categorical_columns,
-        }),
+      const { data: results } = await axios.post('/api/model-analysis', {
+        data: data.slice(1), // Exclude header row
+        columns: columnNames,
+        target_column: targetColumn,
+        problem_type: getProblemType(targetColumn),
+        numeric_columns,
+        categorical_columns,
       });
-
-      if (!response.ok) throw new Error('Network response was not ok');
-      const results = await response.json();
+      
       setModelResults(results);
     } catch (error) {
       console.error('Analysis error:', error);

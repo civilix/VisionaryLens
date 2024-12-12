@@ -3,6 +3,7 @@ import { Upload, message, Button, Space, Row, Col } from 'antd';
 import { InboxOutlined, ReloadOutlined, FileExcelOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx-js-style';
 import { useTranslation } from 'react-i18next';
+import axios from '../utils/axios';
 
 const { Dragger } = Upload;
 
@@ -71,16 +72,7 @@ const FileUpload = ({ onDataLoaded }) => {
 
   const loadSampleFile = async (fileName) => {
     try {
-      const response = await fetch(`/api/samples/${fileName}`);
-      if (!response.ok) {
-        throw new Error('加载示例文件失败');
-      }
-      
-      const jsonData = await response.json();
-      
-      if (jsonData.error) {
-        throw new Error(jsonData.error);
-      }
+      const { data: jsonData } = await axios.get(`/api/samples/${fileName}`);
       
       const { headers, data, numeric_columns, categorical_columns } = jsonData;
       

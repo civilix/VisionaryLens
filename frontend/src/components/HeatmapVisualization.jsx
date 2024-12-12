@@ -3,6 +3,7 @@ import { Card, Space, Spin, message, Switch, Slider, Row, Col } from 'antd';
 import Plot from 'react-plotly.js';
 import './Visualization.css';
 import { useTranslation } from 'react-i18next';
+import axios from '../utils/axios';
 
 const HeatmapVisualization = ({ data, numeric_columns }) => {
   const { t } = useTranslation();
