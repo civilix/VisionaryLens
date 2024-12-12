@@ -321,11 +321,11 @@ const UnivariateAnalysis = ({ data, numeric_columns, categorical_columns }) => {
         },
         body: JSON.stringify({
           all_columns: columnNames,
-          selected_column: currentColumn,
-          column_type: categorical_columns.includes(currentColumn) ? 'categorical' : 'numeric',
+          selected_column_1: currentColumn,
+          column_type_1: categorical_columns.includes(currentColumn) ? 'categorical' : 'numeric',
+          data1: columnData,
           chart_type: chartType,
           transformation: transformation,
-          data: columnData,
           language: i18n.language
         })
       });

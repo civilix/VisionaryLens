@@ -105,27 +105,23 @@ def send_sample_file(filename):
 
 @app.route('/api/insights', methods=['POST'])
 def get_insights():
-    try:
-        data = request.json
-        # Get language from request
-        language = data.get('language', 'zh')  # Default to Chinese if not specified
-        
-        insights = generate_insights(
+    data = request.json
+    
+    # 统一使用相同的参数格式调用 generate_insights
+    return jsonify({
+        'insights': generate_insights(
             all_columns=data['all_columns'],
-            selected_column=data['selected_column'],
-            column_type=data['column_type'],
+            selected_column_1=data.get('selected_column_1') or data.get('selected_column'),
+            column_type_1=data.get('column_type_1') or data.get('column_type'),
+            data1=data.get('data1') or data.get('data'),
+            optional_selected_column_2=data.get('optional_selected_column_2'),
+            optional_column_type_2=data.get('optional_column_type_2'),
+            data2=data.get('data2'),
             chart_type=data['chart_type'],
             transformation=data['transformation'],
-            data=data['data'],
-            language=language  # Pass language to generate_insights
+            language=data.get('language', 'en')
         )
-        return jsonify({'insights': insights})
-    except Exception as e:
-        print(f"Error generating insights: {str(e)}")
-        return jsonify({
-            "message": "Failed to generate insights",
-            "error": str(e)
-        }), 500
+    })
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
