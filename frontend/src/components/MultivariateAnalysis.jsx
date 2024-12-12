@@ -3,7 +3,6 @@ import { Card, Space, Radio, Spin, message, Select, Row, Col, Button, Typography
 import Plot from 'react-plotly.js';
 import './Visualization.css';
 import { useTranslation } from 'react-i18next';
-import GeminiLogo from './Google_Gemini_logo.svg';
 import ReactMarkdown from 'react-markdown';
 
 const { Text } = Typography;
@@ -842,7 +841,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
                     {t('visualization.insights.poweredBy')}
                   </Text>
                   <img 
-                    src={GeminiLogo} 
+                    src="/Google_Gemini_logo.svg" 
                     alt="Gemini" 
                     style={{ 
                       height: '14px',

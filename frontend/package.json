@@ -12,6 +12,7 @@
   "dependencies": {
     "@ant-design/icons": "^5.5.2",
     "antd": "^5.22.3",
+    "axios": "^1.7.9",
     "i18next": "^24.0.5",
     "i18next-browser-languagedetector": "^8.0.2",
     "plotly.js": "^2.35.2",
