@@ -3,6 +3,8 @@ import { Card, Space, Radio, Spin, message, Select, Row, Col, Button, Typography
 import Plot from 'react-plotly.js';
 import './Visualization.css';
 import { useTranslation } from 'react-i18next';
+import GeminiLogo from './Google_Gemini_logo.svg';
+import ReactMarkdown from 'react-markdown';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -18,7 +20,7 @@ const transformOptions = [
 ];
 
 const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   // Set default values: first numeric variable for x, second for y
   const [xColumn, setXColumn] = useState(numeric_columns[0] || '');
   const [yColumn, setYColumn] = useState(numeric_columns[1] || '');
@@ -26,6 +28,12 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
   const [yTransformation, setYTransformation] = useState('x');
   const [chartType, setChartType] = useState('scatter');
   const [loading, setLoading] = useState(false);
+  const [insights, setInsights] = useState('');
+  const [loadingInsights, setLoadingInsights] = useState(false);
+  const [expandedInsights, setExpandedInsights] = useState(false);
+  
+  // Add transition duration constant
+  const TRANSITION_DURATION = '0.3s';
 
   // Update default selections when numeric columns change
   useEffect(() => {
@@ -537,6 +545,53 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
     };
   }, [xColumn, yColumn, chartType]);
 
+  // Add insights fetch function
+  const fetchInsights = async () => {
+    if (!xColumn || !yColumn || !data.length) return;
+
+    setLoadingInsights(true);
+    try {
+      const response = await fetch('http://localhost:8080/api/insights', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept-Language': i18n.language
+        },
+        body: JSON.stringify({
+          all_columns: data[0],
+          selected_columns: [xColumn, yColumn],
+          column_types: [
+            categorical_columns.includes(xColumn) ? 'categorical' : 'numeric',
+            categorical_columns.includes(yColumn) ? 'categorical' : 'numeric'
+          ],
+          chart_type: chartType,
+          transformations: [xTransformation, yTransformation],
+          data: data.slice(1),
+          language: i18n.language
+        })
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+      const result = await response.json();
+      setInsights(result.insights);
+      setExpandedInsights(true);
+    } catch (error) {
+      console.error('Error fetching insights:', error);
+      message.error(t('visualization.insights.error'));
+    } finally {
+      setLoadingInsights(false);
+    }
+  };
+
+  // Add resize effect for insights expansion
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [expandedInsights]);
+
   return (
     <div>
       <Card style={{ marginBottom: 16 }}>
@@ -700,34 +755,127 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
       </Card>
 
       {/* 图表显示 */}
-      <Card>
-        <div style={{ height: '600px' }}>
-          <Spin spinning={loading}>
-            {processData ? (
-              <Plot
-                data={processData}
-                layout={layout}
-                config={{
-                  displayModeBar: true,
-                  responsive: true,
-                  displaylogo: false
-                }}
-                style={{ width: '100%', height: '100%' }}
-                useResizeHandler={true}
-              />
-            ) : (
-              <div style={{ 
-                height: '100%', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center' 
-              }}>
-                <Text type="secondary">{t('visualization.noData')}</Text>
+      <Row gutter={16}>
+        <Col 
+          span={expandedInsights ? 12 : 20} 
+          style={{ 
+            transition: `all ${TRANSITION_DURATION} cubic-bezier(0.4, 0, 0.2, 1)`
+          }}
+        >
+          <Card>
+            <div style={{ height: '600px' }}>
+              <Spin spinning={loading}>
+                {processData ? (
+                  <Plot
+                    data={processData}
+                    layout={{
+                      ...layout,
+                      autosize: true,
+                      transition: {
+                        duration: 300,
+                        easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+                      }
+                    }}
+                    config={{
+                      displayModeBar: true,
+                      responsive: true,
+                      displaylogo: false
+                    }}
+                    style={{ 
+                      width: '100%', 
+                      height: '100%',
+                      transition: `all ${TRANSITION_DURATION} cubic-bezier(0.4, 0, 0.2, 1)`
+                    }}
+                    useResizeHandler={true}
+                  />
+                ) : (
+                  <div style={{ 
+                    height: '100%', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center' 
+                  }}>
+                    <Text type="secondary">{t('visualization.noData')}</Text>
+                  </div>
+                )}
+              </Spin>
+            </div>
+          </Card>
+        </Col>
+
+        <Col 
+          span={expandedInsights ? 12 : 4} 
+          style={{ 
+            transition: `all ${TRANSITION_DURATION} cubic-bezier(0.4, 0, 0.2, 1)`
+          }}
+        >
+          <Card style={{ height: '100%' }}>
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <div style={{ position: 'relative' }}>
+                <Button 
+                  type="primary" 
+                  onClick={fetchInsights}
+                  loading={loadingInsights}
+                  disabled={!xColumn || !yColumn}
+                  style={{ width: '100%' }}
+                >
+                  {insights ? t('visualization.regenerateInsights') : t('visualization.generateInsights')}
+                </Button>
+                <div style={{ 
+                  position: 'absolute', 
+                  right: 0, 
+                  bottom: -20, 
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}>
+                  <Text type="secondary">
+                    {t('visualization.insights.poweredBy')}
+                  </Text>
+                  <img 
+                    src={GeminiLogo} 
+                    alt="Gemini" 
+                    style={{ 
+                      height: '14px',
+                      width: 'auto',
+                      verticalAlign: 'middle'
+                    }} 
+                  />
+                </div>
               </div>
-            )}
-          </Spin>
-        </div>
-      </Card>
+              <div style={{ 
+                marginTop: 24,
+                minHeight: 400,
+                maxHeight: 600,
+                overflowY: 'auto',
+                padding: 16,
+                backgroundColor: '#f5f5f5',
+                borderRadius: 4,
+                position: 'relative'
+              }}>
+                <Spin spinning={loadingInsights} tip={t('visualization.insights.loading')}>
+                  {insights ? (
+                    <ReactMarkdown className="markdown-content">
+                      {insights}
+                    </ReactMarkdown>
+                  ) : (
+                    <div style={{ 
+                      height: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#999'
+                    }}>
+                      <Text>{t('visualization.noInsightsYet')}</Text>
+                    </div>
+                  )}
+                </Spin>
+              </div>
+            </Space>
+          </Card>
+        </Col>
+      </Row>
     </div>
   );
 };
