@@ -551,6 +551,15 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
 
     setLoadingInsights(true);
     try {
+      const columnNames = data[0];
+      const processedData = data.slice(1);
+      
+      // Get data for each column
+      const xIndex = columnNames.indexOf(xColumn);
+      const yIndex = columnNames.indexOf(yColumn);
+      const data1 = processedData.map(row => row[xIndex]);
+      const data2 = processedData.map(row => row[yIndex]);
+
       const response = await fetch('http://localhost:8080/api/insights', {
         method: 'POST',
         headers: {
@@ -558,15 +567,15 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
           'Accept-Language': i18n.language
         },
         body: JSON.stringify({
-          all_columns: data[0],
-          selected_columns: [xColumn, yColumn],
-          column_types: [
-            categorical_columns.includes(xColumn) ? 'categorical' : 'numeric',
-            categorical_columns.includes(yColumn) ? 'categorical' : 'numeric'
-          ],
+          all_columns: columnNames,
+          selected_column_1: xColumn,
+          column_type_1: categorical_columns.includes(xColumn) ? 'categorical' : 'numeric',
+          data1: data1,
+          optional_selected_column_2: yColumn,
+          optional_column_type_2: categorical_columns.includes(yColumn) ? 'categorical' : 'numeric',
+          data2: data2,
           chart_type: chartType,
-          transformations: [xTransformation, yTransformation],
-          data: data.slice(1),
+          transformation: `${xTransformation}, ${yTransformation}`,
           language: i18n.language
         })
       });
@@ -754,7 +763,6 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
         </Space>
       </Card>
 
-      {/* 图表显示 */}
       <Row gutter={16}>
         <Col 
           span={expandedInsights ? 12 : 20} 

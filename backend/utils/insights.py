@@ -1,7 +1,8 @@
 import os
 import google.generativeai as genai
-def generate_insights(all_columns, selected_column, column_type, chart_type, transformation, data, language):
-
+def generate_insights(all_columns, selected_column_1, column_type_1, data1, 
+                     optional_selected_column_2=None, optional_column_type_2=None, 
+                     data2=None, chart_type=None, transformation=None, language='en'):
     genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
     # Create the model
     generation_config = {
@@ -34,13 +35,18 @@ def generate_insights(all_columns, selected_column, column_type, chart_type, tra
     )
 
     context = f"""
-    Language: {language}
-    Dataset Columns: {all_columns}
-    Selected Column: {selected_column} (Type: {column_type})
-    Chart Type: {chart_type}
-    Transformation Applied: {transformation}
-    Data Sample: {data}
+    all_columns={all_columns}
+    selected_column_1={selected_column_1}
+    column_type_1={column_type_1}
+    data1={data1}
+    optional_selected_column_2={optional_selected_column_2}
+    optional_column_type_2={optional_column_type_2}
+    data2={data2}
+    chart_type={chart_type}
+    transformation={transformation}
+    language={language}
     """
+    # print(f'Context: {context}')
     response = chat_session.send_message([context])
     
     return response.text
