@@ -99,7 +99,8 @@ const ModelAnalysis = ({ data, numeric_columns, categorical_columns }) => {
             type="primary" 
             onClick={handleAnalysis}
             loading={loading}
-            disabled={!targetColumn}
+            disabled={true}
+            title={t('modelAnalysis.comingSoon')}
           >
             {t('modelAnalysis.analyze')}
           </Button>
