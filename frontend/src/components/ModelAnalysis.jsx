@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Card, Select, Button, Space, Table, Spin, message, Typography } from 'antd';
+import { Card, Select, Button, Space, Table, Spin, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 const { Option } = Select;
-const { Text } = Typography;
 
 const ModelAnalysis = ({ data, numeric_columns, categorical_columns }) => {
   const { t } = useTranslation();
@@ -83,10 +82,6 @@ const ModelAnalysis = ({ data, numeric_columns, categorical_columns }) => {
   return (
     <Card title={t('modelAnalysis.title')}>
       <Space direction="vertical" style={{ width: '100%' }}>
-        <Text type="secondary">
-          {t('modelAnalysis.selectDescription')}
-        </Text>
-        
         <Space>
           <Select
             style={{ width: 200 }}
