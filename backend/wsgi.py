@@ -13,7 +13,7 @@ from utils.insights import generate_insights
 
 app = Flask(__name__)
 CORS(app)
-
+application = app
 @app.route('/api/example-data', methods=['GET'])
 def get_example_data():
     try:
