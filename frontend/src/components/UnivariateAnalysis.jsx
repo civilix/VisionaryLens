@@ -4,6 +4,7 @@ import Plot from 'react-plotly.js';
 import './Visualization.css';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
+import axios from '../utils/axios';
 
 const { Text, Paragraph } = Typography;
 
@@ -312,25 +313,16 @@ const UnivariateAnalysis = ({ data, numeric_columns, categorical_columns }) => {
       const columnIndex = columnNames.indexOf(currentColumn);
       const columnData = processedData.map(row => row[columnIndex]);
       
-      const response = await fetch('http://localhost:8080/api/insights', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept-Language': i18n.language
-        },
-        body: JSON.stringify({
-          all_columns: columnNames,
-          selected_column_1: currentColumn,
-          column_type_1: categorical_columns.includes(currentColumn) ? 'categorical' : 'numeric',
-          data1: columnData,
-          chart_type: chartType,
-          transformation: transformation,
-          language: i18n.language
-        })
+      const { data: result } = await axios.post('/api/insights', {
+        all_columns: columnNames,
+        selected_column_1: currentColumn,
+        column_type_1: categorical_columns.includes(currentColumn) ? 'categorical' : 'numeric',
+        data1: columnData,
+        chart_type: chartType,
+        transformation: transformation,
+        language: i18n.language
       });
 
-      if (!response.ok) throw new Error('Network response was not ok');
-      const result = await response.json();
       setInsights(result.insights);
       setExpandedInsights(true);
     } catch (error) {

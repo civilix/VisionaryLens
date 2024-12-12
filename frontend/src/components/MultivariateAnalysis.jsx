@@ -4,6 +4,7 @@ import Plot from 'react-plotly.js';
 import './Visualization.css';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
+import axios from '../utils/axios';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -546,7 +547,7 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
 
   // Add insights fetch function
   const fetchInsights = async () => {
-    if (!xColumn || !yColumn || !data.length) return;
+    if (!xColumn || !yColumn) return;
 
     setLoadingInsights(true);
     try {
@@ -559,28 +560,19 @@ const MultivariateAnalysis = ({ data, numeric_columns, categorical_columns }) =>
       const data1 = processedData.map(row => row[xIndex]);
       const data2 = processedData.map(row => row[yIndex]);
 
-      const response = await fetch('http://localhost:8080/api/insights', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept-Language': i18n.language
-        },
-        body: JSON.stringify({
-          all_columns: columnNames,
-          selected_column_1: xColumn,
-          column_type_1: categorical_columns.includes(xColumn) ? 'categorical' : 'numeric',
-          data1: data1,
-          optional_selected_column_2: yColumn,
-          optional_column_type_2: categorical_columns.includes(yColumn) ? 'categorical' : 'numeric',
-          data2: data2,
-          chart_type: chartType,
-          transformation: `${xTransformation}, ${yTransformation}`,
-          language: i18n.language
-        })
+      const { data: result } = await axios.post('/api/insights', {
+        all_columns: columnNames,
+        selected_column_1: xColumn,
+        column_type_1: categorical_columns.includes(xColumn) ? 'categorical' : 'numeric',
+        data1: data1,
+        optional_selected_column_2: yColumn,
+        optional_column_type_2: categorical_columns.includes(yColumn) ? 'categorical' : 'numeric',
+        data2: data2,
+        chart_type: chartType,
+        transformation: `${xTransformation}, ${yTransformation}`,
+        language: i18n.language
       });
 
-      if (!response.ok) throw new Error('Network response was not ok');
-      const result = await response.json();
       setInsights(result.insights);
       setExpandedInsights(true);
     } catch (error) {
