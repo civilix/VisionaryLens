@@ -10,7 +10,7 @@
 ## Tech Stack
 
 ### Frontend
-- React
+- Vite + React
 - Ant Design
 - Plotly
 - i18next
