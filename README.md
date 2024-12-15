@@ -20,3 +20,27 @@
 - Flask
 - Google Gemini AI
 
+## Local Development
+```git clone https://github.com/your-repo/your-project.git```
+### Frontend
+```
+cd frontend
+npm install
+npm run dev
+```
+### Backend
+```
+cd backend
+#Create a virtual environment(optional)
+python -m venv venv
+source venv/bin/activate
+#Install the dependencies
+pip install -r requirements.txt
+python app.py
+```
+### Environment Variables
+Create a .env file in the backend directory and add the following variables:
+```
+GOOGLE_API_KEY=your_gemini_api_key
+```
+
