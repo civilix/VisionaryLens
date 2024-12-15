@@ -21,7 +21,9 @@
 - Google Gemini AI
 
 ## Local Development
-```git clone https://github.com/your-repo/your-project.git```
+```
+git clone https://github.com/your-repo/your-project.git
+```
 ### Frontend
 ```
 cd frontend
