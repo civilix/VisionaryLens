@@ -50,7 +50,15 @@ const ModelAnalysis = ({ data, numeric_columns, categorical_columns }) => {
     return (
       <Plot
         data={traces}
-        layout={{ title: `Model Performance - ${selectedMetric.toUpperCase()}` }}
+        layout={{
+          title: `Model Performance - ${selectedMetric.toUpperCase()}`,
+          autosize: true,
+          width: window.innerWidth * 0.8,
+          height: 400,
+          margin: { t: 50, l: 50, r: 50, b: 50 }
+        }}
+        useResizeHandler={true}
+        style={{ width: '100%', height: '100%' }}
       />
     );
   };
