@@ -88,7 +88,13 @@ i18n
             colorbar: {
               frequency: '频数',
               density: '密度'
-            }
+            },
+            filter: {
+              low: {
+                correlation: "过滤低相关性"
+              }
+            },
+            threshold: "阈值",
           },
           modelAnalysis: {
             title: '基准模型评估',
@@ -190,7 +196,13 @@ i18n
             colorbar: {
               frequency: '頻度',
               density: '密度'
-            }
+            },
+            filter: {
+              low: {
+                correlation: "低相関をフィルター"
+              }
+            },
+            threshold: "しきい値",
           },
           modelAnalysis: {
             title: 'ベースラインモデル比較',
@@ -292,7 +304,13 @@ i18n
             colorbar: {
               frequency: 'Frequency',
               density: 'Density'
-            }
+            },
+            filter: {
+              low: {
+                correlation: "Filter Low Correlation"
+              }
+            },
+            threshold: "Threshold",
           },
           modelAnalysis: {
             title: 'Baseline Model Evaluation',

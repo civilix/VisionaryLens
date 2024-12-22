@@ -135,7 +135,7 @@ const HeatmapVisualization = ({ data, numeric_columns }) => {
           >
             <Col span={8}>
               <Space>
-                <span style={{ fontWeight: 500 }}>过滤低相关性：</span>
+                <span style={{ fontWeight: 500 }}>{t('visualization.filter.low.correlation')}:</span>
                 <Switch 
                   checked={showThreshold}
                   onChange={setShowThreshold}
@@ -146,7 +146,7 @@ const HeatmapVisualization = ({ data, numeric_columns }) => {
             {showThreshold && (
               <Col span={16}>
                 <Space align="center" style={{ width: '100%' }}>
-                  <span style={{ fontWeight: 500, minWidth: '60px' }}>阈值：</span>
+                  <span style={{ fontWeight: 500, minWidth: '60px' }}>{t('visualization.threshold')}:</span>
                   <Slider
                     value={correlationThreshold}
                     onChange={setCorrelationThreshold}
