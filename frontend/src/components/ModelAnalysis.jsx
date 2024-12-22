@@ -1,76 +1,59 @@
 import React, { useState } from 'react';
-import { Card, Select, Button, Space, Table, Spin, message } from 'antd';
+import { Button, Card, Space, Select, Tabs } from 'antd';
+import Plot from 'react-plotly.js';
 import { useTranslation } from 'react-i18next';
-import axios from '../utils/axios';
 
 const { Option } = Select;
+const { TabPane } = Tabs;
 
 const ModelAnalysis = ({ data, numeric_columns, categorical_columns }) => {
   const { t } = useTranslation();
   const [targetColumn, setTargetColumn] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [modelResults, setModelResults] = useState(null);
+  const [modelData, setModelData] = useState([]);
+  const [selectedMetric, setSelectedMetric] = useState('accuracy');
 
-  // Extract column names from data
-  const columnNames = data && data.length > 0 ? data[0] : [];
-  
-  // Determine problem type based on target column
-  const getProblemType = (column) => {
-    if (!column) return null;
-    return categorical_columns.includes(column) ? 'classification' : 'regression';
-  };
-
-  const handleAnalysis = async () => {
-    if (!targetColumn) {
-      message.warning(t('modelAnalysis.selectTarget'));
-      return;
-    }
-
+  const handleAnalysis = () => {
     setLoading(true);
-    try {
-      const { data: results } = await axios.post('/api/model-analysis', {
-        data: data.slice(1), // Exclude header row
-        columns: columnNames,
+    fetch('/api/model-analysis', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        data: [], // Empty data for testing
         target_column: targetColumn,
-        problem_type: getProblemType(targetColumn),
-        numeric_columns,
-        categorical_columns,
-      });
-      
-      setModelResults(results);
-    } catch (error) {
-      console.error('Analysis error:', error);
-      message.error(t('modelAnalysis.error'));
-    } finally {
+        problem_type: 'regression',
+        numeric_columns: numeric_columns,
+        categorical_columns: categorical_columns
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Model Analysis Result:', data);
+      setModelData(data);
       setLoading(false);
-    }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      setLoading(false);
+    });
   };
 
-  const columns = [
-    {
-      title: t('modelAnalysis.modelName'),
-      dataIndex: 'model_name',
-      key: 'model_name',
-    },
-    {
-      title: t('modelAnalysis.baselineScore'),
-      dataIndex: 'baseline_score',
-      key: 'baseline_score',
-      render: (value) => value.toFixed(4),
-    },
-    {
-      title: t('modelAnalysis.optimizedScore'),
-      dataIndex: 'optimized_score',
-      key: 'optimized_score',
-      render: (value) => value.toFixed(4),
-    },
-    {
-      title: t('modelAnalysis.improvement'),
-      dataIndex: 'improvement',
-      key: 'improvement',
-      render: (value) => `${(value * 100).toFixed(2)}%`,
-    },
-  ];
+  const renderPlot = () => {
+    const traces = modelData.map(model => ({
+      y: model.performance[selectedMetric],
+      type: 'box',
+      name: model.model_name
+    }));
+
+    return (
+      <Plot
+        data={traces}
+        layout={{ title: `Model Performance - ${selectedMetric.toUpperCase()}` }}
+      />
+    );
+  };
 
   return (
     <Card title={t('modelAnalysis.title')}>
@@ -82,7 +65,7 @@ const ModelAnalysis = ({ data, numeric_columns, categorical_columns }) => {
             onChange={setTargetColumn}
             value={targetColumn}
           >
-            {columnNames.map((col) => (
+            {numeric_columns.concat(categorical_columns).map((col) => (
               <Option key={col} value={col}>
                 {col}
               </Option>
@@ -92,39 +75,26 @@ const ModelAnalysis = ({ data, numeric_columns, categorical_columns }) => {
             type="primary" 
             onClick={handleAnalysis}
             loading={loading}
-            disabled={true}
-            title={t('modelAnalysis.comingSoon')}
+            disabled={!targetColumn}
           >
             {t('modelAnalysis.analyze')}
           </Button>
         </Space>
-
-        {targetColumn && (
-          <Card size="small" style={{ marginTop: 16 }}>
-            <p>
-              {t('modelAnalysis.problemType')}: {' '}
-              <strong>
-                {getProblemType(targetColumn) === 'classification' 
-                  ? t('modelAnalysis.classification') 
-                  : t('modelAnalysis.regression')}
-              </strong>
-            </p>
-          </Card>
-        )}
-
-        {loading && (
-          <div style={{ textAlign: 'center', padding: '20px' }}>
-            <Spin tip={t('modelAnalysis.loading')} />
-          </div>
-        )}
-
-        {modelResults && (
-          <Table 
-            dataSource={modelResults.models} 
-            columns={columns}
-            pagination={false}
-            style={{ marginTop: 16 }}
-          />
+        {modelData.length > 0 && (
+          <Tabs defaultActiveKey="accuracy" onChange={setSelectedMetric}>
+            <TabPane tab="Accuracy" key="accuracy">
+              {renderPlot()}
+            </TabPane>
+            <TabPane tab="Precision" key="precision">
+              {renderPlot()}
+            </TabPane>
+            <TabPane tab="F1" key="f1">
+              {renderPlot()}
+            </TabPane>
+            <TabPane tab="RMSE" key="rmse">
+              {renderPlot()}
+            </TabPane>
+          </Tabs>
         )}
       </Space>
     </Card>

@@ -1,5 +1,6 @@
 import os
 import sys
+import random
 
 # Add current directory to Python path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -43,9 +44,9 @@ def get_example_data():
         })
         
     except Exception as e:
-        print(f"Error reading file: {str(e)}")
+        print(f"读取文件错误: {str(e)}")
         return jsonify({
-            "message": "Failed to read data",
+            "message": "数据读取失败",
             "error": str(e)
         }), 500
 
@@ -59,7 +60,7 @@ def send_sample_file(filename):
         else:  # Excel files
             df = pd.read_excel(file_path)
         
-        # Convert columns to numeric where possible
+        # Modify numeric type conversion logic
         for column in df.columns:
             try:
                 df[column] = pd.to_numeric(df[column])
@@ -107,7 +108,7 @@ def send_sample_file(filename):
 def get_insights():
     data = request.json
     
-    # Use consistent parameter format to call generate_insights
+    # 统一使用相同的参数格式调用 generate_insights
     return jsonify({
         'insights': generate_insights(
             all_columns=data['all_columns'],
@@ -163,6 +164,23 @@ def upload_file():
     except Exception as e:
         print(f"Error processing file: {e}")
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/model-analysis', methods=['POST'])
+def model_analysis():
+    # Simulate data for 5 models
+    models = ['Model A', 'Model B', 'Model C', 'Model D', 'Model E']
+    metrics = ['accuracy', 'precision', 'f1', 'rmse']
+    
+    # Generate random performance data
+    model_performance = []
+    for model in models:
+        performance = {metric: [random.uniform(0.7, 1.0) for _ in range(10)] for metric in metrics}
+        model_performance.append({
+            'model_name': model,
+            'performance': performance
+        })
+    
+    return jsonify(model_performance)
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
