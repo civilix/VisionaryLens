@@ -4,9 +4,10 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression, LinearRegression
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, GradientBoostingRegressor
 from sklearn.svm import SVC, SVR
-from sklearn.metrics import accuracy_score, mean_squared_error
+from sklearn.neighbors import KNeighborsClassifier
+from xgboost import XGBClassifier, XGBRegressor
 import numpy as np
 
 def perform_model_analysis(data, target_column, problem_type, numeric_columns, categorical_columns):
@@ -47,7 +48,8 @@ def perform_model_analysis(data, target_column, problem_type, numeric_columns, c
             ('Logistic Regression', LogisticRegression()),
             ('Random Forest', RandomForestClassifier()),
             ('SVM', SVC()),
-            # Add more models as needed
+            ('KNN', KNeighborsClassifier()),
+            ('XGBoost', XGBClassifier(use_label_encoder=False, eval_metric='mlogloss'))
         ]
         scoring = 'accuracy'
     elif problem_type == 'regression':
@@ -55,7 +57,8 @@ def perform_model_analysis(data, target_column, problem_type, numeric_columns, c
             ('Linear Regression', LinearRegression()),
             ('Random Forest', RandomForestRegressor()),
             ('SVR', SVR()),
-            # Add more models as needed
+            ('Gradient Boosting', GradientBoostingRegressor()),
+            ('XGBoost', XGBRegressor())
         ]
         scoring = 'neg_mean_squared_error'
 
