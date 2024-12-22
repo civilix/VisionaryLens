@@ -19,54 +19,29 @@ const FileUpload = ({ onDataLoaded }) => {
   const [fileName, setFileName] = useState('');
 
   const handleFile = (file) => {
-    const reader = new FileReader();
-    
-    reader.onload = (e) => {
-      try {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
+    const formData = new FormData();
+    formData.append('file', file);
 
-        // Force read first row as headers
-        const range = XLSX.utils.decode_range(worksheet['!ref']);
-        const headers = [];
-        for(let C = range.s.c; C <= range.e.c; ++C) {
-          const cell = worksheet[XLSX.utils.encode_cell({r:0, c:C})];
-          headers[C] = cell ? cell.v : '';
-        }
-
-        // Read data rows
-        const rows = XLSX.utils.sheet_to_json(worksheet, {
-          header: headers,
-          range: 1  // Start reading from second row
-        }).map(row => headers.map(header => row[header] || ''));
-
-        // Combine headers and data
-        const processedData = [
-          headers,
-          ...rows
-        ];
-
-        if (processedData.length > 1) {
-          onDataLoaded(processedData);
-          setFileUploaded(true);
-          setFileName(file.name);
-          message.success(t('fileUpload.uploadSuccess'));
-        } else {
-          message.error(t('fileUpload.noData'));
-        }
-      } catch (error) {
-        console.error('文件解析错误:', error);
-        message.error(t('fileUpload.uploadError'));
+    axios.post('/api/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
       }
-    };
+    })
+    .then(response => {
+      const { data, numeric_columns, categorical_columns } = response.data;
+      onDataLoaded(data, {
+        numeric_columns,
+        categorical_columns
+      });
+      setFileUploaded(true);
+      setFileName(file.name);
+      message.success(t('fileUpload.uploadSuccess'));
+    })
+    .catch(error => {
+      console.error('File upload error:', error);
+      message.error(t('fileUpload.uploadError'));
+    });
 
-    reader.onerror = () => {
-      message.error(t('fileUpload.readError'));
-    };
-
-    reader.readAsArrayBuffer(file);
     return false;
   };
 
@@ -76,7 +51,7 @@ const FileUpload = ({ onDataLoaded }) => {
       
       const { headers, data, numeric_columns, categorical_columns } = jsonData;
       
-      // 组合表头和数据
+      // Combine headers and data
       const processedData = [headers, ...data];
       
       if (processedData.length > 1) {
@@ -92,7 +67,7 @@ const FileUpload = ({ onDataLoaded }) => {
       }
       
     } catch (error) {
-      console.error('加载示例文件错误:', error);
+      console.error('Error loading sample file:', error);
       message.error(t('fileUpload.loadSampleError'));
     }
   };

@@ -123,6 +123,47 @@ def get_insights():
         )
     })
 
+@app.route('/api/upload', methods=['POST'])
+def upload_file():
+    try:
+        file = request.files['file']
+        if file.filename.endswith('.csv'):
+            df = pd.read_csv(file, sep=';')
+        else:  # Excel files
+            df = pd.read_excel(file)
+
+        # Convert columns to numeric where possible
+        for column in df.columns:
+            try:
+                df[column] = pd.to_numeric(df[column])
+            except (ValueError, TypeError):
+                continue
+
+        # Classify data types
+        numeric_columns = df.select_dtypes(include=[np.number]).columns.tolist()
+        categorical_columns = df.select_dtypes(exclude=[np.number]).columns.tolist()
+
+        # Handle special values
+        df = df.replace({
+            np.nan: None,
+            np.inf: None,
+            -np.inf: None
+        })
+
+        headers = df.columns.tolist()
+        data = df.values.tolist()
+
+        return jsonify({
+            'headers': headers,
+            'data': data,
+            'numeric_columns': numeric_columns,
+            'categorical_columns': categorical_columns
+        })
+
+    except Exception as e:
+        print(f"Error processing file: {e}")
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
 
