@@ -570,7 +570,7 @@ const UnivariateAnalysis = ({ data, numeric_columns, categorical_columns }) => {
               <div style={{ 
                 marginTop: 24,
                 minHeight: 400,
-                maxHeight: 600,
+                maxHeight: 400,
                 overflowY: 'auto',
                 padding: 16,
                 backgroundColor: '#f5f5f5',
