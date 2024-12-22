@@ -5,7 +5,7 @@
 - 🤖 Automated baseline model comparison
 - 🌍 Internationalization support (🇺🇸🇯🇵🇨🇳)
 ## Demo
-### Loading your data
+### File upload
 ![Loading your data](demo/FileUpload.png)
 ### Univariate analysis with AI insights
 ![Univariate analysis with AI insights](demo/UnivariateAnalysis.png)
