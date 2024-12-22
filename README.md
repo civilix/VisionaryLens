@@ -1,12 +1,20 @@
 ## Features
-
-- 📊 Interactive data visualization
-- 🤖 Automated model analysis
-- 🔍 AI-powered data insights
 - 📁 CSV/Excel file upload support
-- 📱 Responsive design
+- 📊 Interactive data visualization
+- 🔍 AI-powered data insights
+- 🤖 Automated baseline model comparison
 - 🌍 Internationalization support (🇺🇸🇯🇵🇨🇳)
-
+## Demo
+### Loading your data
+![Loading your data](demo/FileUpload.png)
+### Univariate analysis with AI insights
+![Univariate analysis with AI insights](demo/UnivariateAnalysis.png)
+### Multivariate analysis with AI insights
+![Multivariate analysis with AI insights](demo/MultivariateAnalysis.png)
+### Heatmap 
+![Heatmap ](demo/HeatmapVisualization.png)
+### Model comparison
+![Model comparison](demo/ModelAnalysis.png)
 ## Tech Stack
 
 ### Frontend
@@ -16,11 +24,12 @@
 - i18next
 
 ### Backend
-- Python
 - Flask
+- Python
+- Pandas, Scikit-learn, XGBoost, etc.
 - Google Gemini AI
 
-## Local Development
+## Local Deployment
 ```
 git clone https://github.com/civilix/VisionaryLens
 ```
@@ -37,7 +46,7 @@ cd backend
 ```
 #Create a virtual environment(optional)
 python -m venv venv
-source venv/bin/activate
+source venv/Multin/activate
 ```
 ```
 #Install the dependencies
