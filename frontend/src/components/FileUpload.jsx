@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Upload, message, Button, Space, Row, Col } from 'antd';
 import { InboxOutlined, ReloadOutlined, FileExcelOutlined } from '@ant-design/icons';
-import * as XLSX from 'xlsx-js-style';
 import { useTranslation } from 'react-i18next';
 import axios from '../utils/axios';
 
