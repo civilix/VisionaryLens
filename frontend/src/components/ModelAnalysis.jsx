@@ -21,7 +21,7 @@ const ModelAnalysis = ({ data, numeric_columns, categorical_columns }) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        data: [], // Empty data for testing
+        data: data,
         target_column: targetColumn,
         problem_type: 'regression',
         numeric_columns: numeric_columns,
