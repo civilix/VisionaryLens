@@ -11,6 +11,7 @@ from flask_cors import CORS
 import pandas as pd
 import numpy as np
 from utils.insights import generate_insights
+from utils.model_analysis import perform_model_analysis
 
 app = Flask(__name__)
 CORS(app)
@@ -167,20 +168,22 @@ def upload_file():
 
 @app.route('/api/model-analysis', methods=['POST'])
 def model_analysis():
-    # Simulate data for 5 models
-    models = ['Model A', 'Model B', 'Model C', 'Model D', 'Model E']
-    metrics = ['accuracy', 'precision', 'f1', 'rmse']
-    
-    # Generate random performance data
-    model_performance = []
-    for model in models:
-        performance = {metric: [random.uniform(0.7, 1.0) for _ in range(10)] for metric in metrics}
-        model_performance.append({
-            'model_name': model,
-            'performance': performance
-        })
-    
-    return jsonify(model_performance)
+    data = request.json
+    try:
+        # Call perform_model_analysis with the received data
+        analysis_result = perform_model_analysis(
+            data=data['data'],
+            target_column=data['target_column'],
+            problem_type=data['problem_type'],
+            numeric_columns=data['numeric_columns'],
+            categorical_columns=data['categorical_columns']
+        )
+        
+        return jsonify([analysis_result])  # Wrap in list to match expected format
+
+    except Exception as e:
+        print(f"Error during model analysis: {e}")
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
