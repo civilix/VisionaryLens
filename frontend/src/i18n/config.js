@@ -207,8 +207,8 @@ i18n
             error: 'モデル分析に失敗'
           },
           correlationAnalysis: '相関分析',
-          univariateAnalysis: '単変量分析',
-          multivariateAnalysis: '多変量分析',
+          univariateAnalysis: '単変量解析',
+          multivariateAnalysis: '多変量解析',
         }
       },
       en: {
