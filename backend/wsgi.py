@@ -1,7 +1,7 @@
 import os
 import sys
 
-# 添加当前目录到 Python 路径
+# Add current directory to Python path
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
 
@@ -13,12 +13,12 @@ from utils.insights import generate_insights
 
 app = Flask(__name__)
 CORS(app)
-application = app
+
 @app.route('/api/example-data', methods=['GET'])
 def get_example_data():
     try:
         df = pd.read_excel('example_data/ad-data.xlsx')
-        # Modify numeric type conversion logic
+        # Convert columns to numeric where possible
         for column in df.columns:
             try:
                 df[column] = pd.to_numeric(df[column])
@@ -43,9 +43,9 @@ def get_example_data():
         })
         
     except Exception as e:
-        print(f"读取文件错误: {str(e)}")
+        print(f"Error reading file: {str(e)}")
         return jsonify({
-            "message": "数据读取失败",
+            "message": "Failed to read data",
             "error": str(e)
         }), 500
 
@@ -59,7 +59,7 @@ def send_sample_file(filename):
         else:  # Excel files
             df = pd.read_excel(file_path)
         
-        # Modify numeric type conversion logic
+        # Convert columns to numeric where possible
         for column in df.columns:
             try:
                 df[column] = pd.to_numeric(df[column])
@@ -107,7 +107,7 @@ def send_sample_file(filename):
 def get_insights():
     data = request.json
     
-    # 统一使用相同的参数格式调用 generate_insights
+    # Use consistent parameter format to call generate_insights
     return jsonify({
         'insights': generate_insights(
             all_columns=data['all_columns'],
@@ -122,6 +122,47 @@ def get_insights():
             language=data.get('language', 'en')
         )
     })
+
+@app.route('/api/upload', methods=['POST'])
+def upload_file():
+    try:
+        file = request.files['file']
+        if file.filename.endswith('.csv'):
+            df = pd.read_csv(file, sep=';')
+        else:  # Excel files
+            df = pd.read_excel(file)
+
+        # Convert columns to numeric where possible
+        for column in df.columns:
+            try:
+                df[column] = pd.to_numeric(df[column])
+            except (ValueError, TypeError):
+                continue
+
+        # Classify data types
+        numeric_columns = df.select_dtypes(include=[np.number]).columns.tolist()
+        categorical_columns = df.select_dtypes(exclude=[np.number]).columns.tolist()
+
+        # Handle special values
+        df = df.replace({
+            np.nan: None,
+            np.inf: None,
+            -np.inf: None
+        })
+
+        headers = df.columns.tolist()
+        data = df.values.tolist()
+
+        return jsonify({
+            'headers': headers,
+            'data': data,
+            'numeric_columns': numeric_columns,
+            'categorical_columns': categorical_columns
+        })
+
+    except Exception as e:
+        print(f"Error processing file: {e}")
+        return jsonify({'error': str(e)}), 500
 
 # if __name__ == '__main__':
 #     app.run(debug=True, port=8080)
