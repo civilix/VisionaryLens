@@ -47,6 +47,6 @@ python app.py
 ### Environment Variables
 Create a .env file in the backend directory and add the following variables:
 ```
-GOOGLE_API_KEY=your_gemini_api_key
+GOOGLE_API_KEY="your_gemini_api_key"
 ```
 
