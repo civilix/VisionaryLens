@@ -6,7 +6,8 @@ def perform_model_analysis(data, target_column, problem_type, numeric_columns, c
     data = pd.DataFrame(data)
     data.columns = data.iloc[0]
     data = data.iloc[1:]
-    data.to_csv('data.csv', index=False)
+    data.dropna(inplace=True)
+    data.drop_duplicates(inplace=True)
     #Regression or Classification
     if problem_type == 'regression':
         regression.setup(data=data, target=target_column, session_id=123)
