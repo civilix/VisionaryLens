@@ -46,7 +46,8 @@ def generate_insights(all_columns, selected_column_1, column_type_1, data1,
     transformation={transformation}
     language={language}
     """
-    # print(f'Context: {context}')
+    total_tokens = model.count_tokens(context)
+    print(f'Total tokens: {total_tokens}')
     response = chat_session.send_message([context])
     
     return response.text
