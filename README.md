@@ -5,7 +5,7 @@
 - 🔍 AI-powered data insights
 - 📁 CSV/Excel file upload support
 - 📱 Responsive design
-- 🌍 Internationalization support (i18n)
+- 🌍 Internationalization support (🇺🇸🇯🇵🇨🇳)
 
 ## Tech Stack
 
