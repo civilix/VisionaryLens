@@ -59,12 +59,17 @@ const HeatmapVisualization = ({ data, numeric_columns }) => {
   const heatmapData = useMemo(() => {
     if (!calculateCorrelations) return [];
 
+    // Apply threshold filter
+    const filteredCorrelations = calculateCorrelations.map(row =>
+      row.map(val => (Math.abs(val) < correlationThreshold ? null : val))
+    );
+
     return [{
       type: 'heatmap',
-      z: calculateCorrelations,
+      z: filteredCorrelations,
       x: numeric_columns,
       y: numeric_columns,
-      colorscale: 'RdBu',
+      colorscale: 'Viridis',
       zmin: -1,
       zmax: 1,
       hoverongaps: false,
@@ -77,12 +82,12 @@ const HeatmapVisualization = ({ data, numeric_columns }) => {
       },
       text: calculateCorrelations.map((row, i) =>
         row.map((val, j) => 
-          `${numeric_columns[i]} - ${numeric_columns[j]}<br>${val.toFixed(2)}`
+          Math.abs(val) < correlationThreshold ? '' : `${numeric_columns[i]} - ${numeric_columns[j]}<br>${val.toFixed(2)}`
         )
       ),
       hoverinfo: 'text'
     }];
-  }, [calculateCorrelations, numeric_columns, t]);
+  }, [calculateCorrelations, numeric_columns, correlationThreshold, t]);
 
   // Heatmap layout configuration
   const heatmapLayout = useMemo(() => ({
@@ -105,20 +110,23 @@ const HeatmapVisualization = ({ data, numeric_columns }) => {
       automargin: true, // 自动调整边距
     },
     annotations: calculateCorrelations?.map((row, i) =>
-      row.map((val, j) => ({
-        text: val.toFixed(2),
-        x: numeric_columns[j],
-        y: numeric_columns[i],
-        xref: 'x',
-        yref: 'y',
-        showarrow: false,
-        font: {
-          color: Math.abs(val) > 0.5 ? 'white' : 'black',
-          size: 10
-        }
-      }))
-    ).flat() || []
-  }), [calculateCorrelations, numeric_columns, t]);
+      row.map((val, j) => {
+        if (Math.abs(val) < correlationThreshold) return null; // Filter out annotations below threshold
+        return {
+          text: val.toFixed(2),
+          x: numeric_columns[j],
+          y: numeric_columns[i],
+          xref: 'x',
+          yref: 'y',
+          showarrow: false,
+          font: {
+            color: Math.abs(val) > 0.5 ? 'white' : 'black',
+            size: 10
+          }
+        };
+      })
+    ).flat().filter(Boolean) || [] // Remove null values
+  }), [calculateCorrelations, numeric_columns, correlationThreshold, t]);
 
   return (
     <div>
@@ -187,10 +195,10 @@ const HeatmapVisualization = ({ data, numeric_columns }) => {
                   width: '100%',
                   height: '100%',
                   minHeight: '500px',
-                  maxHeight: '80vh'  // 限制最大高度为视窗高度的 80%
+                  maxHeight: '80vh'
                 }}
                 useResizeHandler={true}
-                onError={() => message.error('绘制热图时出错')}
+                onError={() => message.error(t('visualization.error'))}
               />
             </Spin>
           </div>
@@ -198,7 +206,7 @@ const HeatmapVisualization = ({ data, numeric_columns }) => {
       ) : (
         <Card>
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
-            <p>需要至少两个数值型特征来生成相关性热图</p>
+            <p>{t('visualization.require.two.numeric.features')}</p>
           </div>
         </Card>
       )}
