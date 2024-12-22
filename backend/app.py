@@ -171,7 +171,7 @@ def model_analysis():
     data = request.json
     try:
         # Call perform_model_analysis with the received data
-        analysis_result = perform_model_analysis(
+        best_model, results_df = perform_model_analysis(
             data=data['data'],
             target_column=data['target_column'],
             problem_type=data['problem_type'],
@@ -179,7 +179,13 @@ def model_analysis():
             categorical_columns=data['categorical_columns']
         )
         
-        return jsonify([analysis_result])  # Wrap in list to match expected format
+        # Convert results_df to a dictionary format for JSON response
+        results_dict = results_df.to_dict(orient='records')
+        
+        return jsonify({
+            # 'best_model': str(best_model),  # Convert model to string or another serializable format
+            'results': results_dict
+        })
 
     except Exception as e:
         print(f"Error during model analysis: {e}")
