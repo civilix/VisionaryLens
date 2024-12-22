@@ -5,10 +5,10 @@ const DataPreview = ({ data }) => {
     return <Table columns={[]} dataSource={[]} />;
   }
 
-  // 获取表头
+  // Get table headers
   const headers = data[0];
 
-  // 创建列定义
+  // Create column definitions
   const columns = headers.map((header, index) => ({
     title: header,
     dataIndex: `col${index}`,
@@ -17,7 +17,7 @@ const DataPreview = ({ data }) => {
     ellipsis: true
   }));
 
-  // 处理数据行
+  // Process data rows
   const dataSource = data.slice(1).map((row, rowIndex) => {
     const rowData = {
       key: rowIndex,
