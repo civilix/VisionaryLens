@@ -19,7 +19,7 @@
 ![Multivariate analysis with AI insights](demo/MultivariateAnalysis.png)
 
 ### Heatmap Visualization
-![Heatmap](demo/HeatmapVisualization.png)
+![Heatmap](demo/HeatmapVisualization.gif)
 
 ### Model Comparison
 ![Model comparison](demo/ModelAnalysis.png)
