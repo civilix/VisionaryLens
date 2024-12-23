@@ -23,7 +23,7 @@
 
 ### Model Comparison
 ![Model comparison](demo/ModelAnalysis.png)
-
+Data undergoes simple feature engineering and standardization, followed by PCA for dimensionality reduction. `RandomizedSearchCV` is used to compare model performance bounds.
 ## Tech Stack
 
 ### Frontend
