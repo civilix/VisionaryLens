@@ -46,7 +46,8 @@ i18n
               heatmapPlot: '热力图',
               '2dHistogram': '二维直方图',
               jointPlot: '联合分布图',
-              kdeJointPlot: 'KDE联合分布图'
+              kdeJointPlot: 'KDE联合分布图',
+              linePlot: '折线图'
             },
             correlation: {
               title: '特征相关性热力图',
@@ -154,7 +155,8 @@ i18n
               heatmapPlot: '熱力図',
               '2dHistogram': '二次元ヒストグラム',
               jointPlot: '結合分布図',
-              kdeJointPlot: 'KDE結合分布図'
+              kdeJointPlot: 'KDE結合分布図',
+              linePlot: '折れ線グラフ'
             },
             correlation: {
               title: '相関ヒートマップ',
@@ -262,7 +264,8 @@ i18n
               heatmapPlot: 'Heatmap Plot',
               '2dHistogram': '2D Histogram',
               jointPlot: 'Joint Plot',
-              kdeJointPlot: 'KDE Joint Plot'
+              kdeJointPlot: 'KDE Joint Plot',
+              linePlot: 'Line Plot'
             },
             correlation: {
               title: 'Feature Correlation Heatmap',
